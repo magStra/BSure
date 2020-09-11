@@ -229,13 +229,13 @@ To compare essentiality types in different cell lines (here K562 from @Peets2020
 compare sets of essential genes of levels I and II (with significance levels as detailed above) and sets of unessential genes of levels I and II (unessential with the same significance levels), and determine if there are overlaps between significantly essential genes in one cell line and significantly unessential genes in the other. 
 
 ```{r}
-intersect(extracted_gene_categories_K562_best$not_essential_genes_I,extracted_gene_categories_HT29$essential_genes_II)
-extracted_gene_categories_K562_best$false_positive_rate_not_essential_I
+intersect(extracted_gene_categories_K562_best$not_essential_genes_II,extracted_gene_categories_HT29$essential_genes_II)
+extracted_gene_categories_K562_best$false_positive_rate_not_essential_II
 extracted_gene_categories_HT29$false_positive_rate_essential_II
 ```
 ```{r}
-intersect(extracted_gene_categories_K562_best$essential_genes_II,extracted_gene_categories_HT29$not_essential_genes_I)
-extracted_gene_categories_K562_best$false_positive_rate_essential_II
+intersect(extracted_gene_categories_K562_best$essential_genes_I,extracted_gene_categories_HT29$not_essential_genes_I)
+extracted_gene_categories_K562_best$false_positive_rate_essential_I
 extracted_gene_categories_HT29$false_positive_rate_not_essential_I
 ```
 
@@ -246,10 +246,16 @@ extracted_gene_categories_K562_best_strict <- extract_gene_categories(resultsK56
 ```
 
 ```{r}
-intersect(extracted_gene_categories_K562_best_strict$not_essential_genes_I,extracted_gene_categories_HT29_strict$essential_genes_II)
+intersect(extracted_gene_categories_K562_best_strict$not_essential_genes_II,extracted_gene_categories_HT29_strict$essential_genes_II)
 ```
 ```{r}
-intersect(extracted_gene_categories_K562_best_strict$essential_genes_II,extracted_gene_categories_HT29_strict$not_essential_genes_I)
+intersect(extracted_gene_categories_K562_best_strict$essential_genes_II,extracted_gene_categories_HT29_strict$not_essential_genes_II)
+```
+```{r}
+intersect(extracted_gene_categories_K562_best_strict$not_essential_genes_I,extracted_gene_categories_HT29_strict$essential_genes_I)
+```
+```{r}
+intersect(extracted_gene_categories_K562_best_strict$essential_genes_I,extracted_gene_categories_HT29_strict$not_essential_genes_I)
 ```
 
 Now we have obtained a list of genes confidently differentially essential in the two cell lines. 
