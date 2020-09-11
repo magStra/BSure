@@ -1,0 +1,182 @@
+---
+title: "BSure about CRISPR: Bayesian methods to be Sure about replicability, quality and prediction"
+author: "Magdalena Strauss"
+package: BSure
+bibliography: BSurePackage.bib
+output: 
+  BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}  
+---
+
+```{r, echo=FALSE, results="hide", message=FALSE}
+require(knitr)
+opts_chunk$set(error=FALSE, message=FALSE, warning=FALSE)
+```
+
+# Introducing BSure
+BSure is a method for the robust inference of gene essentiality levels for pooled CRISPR survival screens and for the assessment of screen quality and design of screens. It uses Bayesian methods to model explicitly measurement noise and levels of replicability. We obtain a set of possible values for the essentiality score, each of them with a probability of it being the real value, that is a posterior probability distribution of scores. This is illustrated in the figure below. The credible interval is an interval that contains the unknown true value of the essentiality with a probability of 95%. The higher the screen quality, replicability of the experiment and agreement of gRNAs, the narrower the credible interval, that is we learn more about the essentiality from a higher quality screen and can narrow down the range in which the true essentiality level must be contained. For details see Strauss and Parts, 2020. In preparation, and the examples and illustrations in this vignette.
+
+<img src="figMotivation3.pdf" alt="drawing" width="300"/>
+<em>Range of essentiality levels: posterior distribution and credible interval</em>
+
+
+
+
+```{r,warnings=F,message=F}
+library(BSure)
+```
+
+# BSure on an example dataset
+
+To illustrate the method, we first load a subset from the transcriptome-wide screen in the HT29 cancer cell line published in  Allen F et al. JACKS: joint analysis of CRISPR/Cas9 knockout screens. *Genome research*. 2019;29(3):464–471. The reduced dataset contains a mix of essential and nonessential genes.
+
+```{r,warnings=F,message=F}
+data(counts_HT29_small)
+```
+
+We compute log-fold changes between counts from the knockout screens and the plasmid library.
+
+```{r,warnings=F,message=F}
+colnames(HT29_small)
+#The last column is the control measurement. The first column contains the gRNAs
+#and the second the names of the corresponding genes.
+nc <- ncol(HT29_small)
+counts <- HT29_small[,-c(1:2,nc)]#removing columns of gRNAs, genes and controls
+controls <- HT29_small[,nc]
+lfc_small <- compute_lfc_from_counts(counts=counts, controls=controls)
+HT29_lfc_small <- cbind(HT29_small$sgRNA,HT29_small$gene,lfc_small)#required format
+#for BSure algorithm:
+#first column: gRNAs, second column: corresponding genes, third to last column: 
+#log-fold changes for all replicates
+```
+
+Now we can run the BSure algorithm
+
+```{r,warnings=F,message=F,eval=F}
+runBSure(lfc=HT29_lfc_small,save_file_name="HT29_lfc_small",n_cores=2,min_tail_ESS=500)
+```
+
+and analyse the output. 
+
+```{r,warnings=F,message=F}
+load("HT29_lfc_small.rda")#save_file_name from above plus ".rda"
+extracted_output_HT29 <- extract_from_output(output)
+plot_credible_intervals(extracted_output_HT29,"HT29_small")
+```
+
+This created a folder named HT29_small, containing the following plots:
+
+<img src="HT29_small/HT29_small_credible_intervals_as_function_of_mean.pdf" alt="drawing" width="300"/>
+<em>HT29_small_credible_intervals_as_function_of_mean.pdf</em> 
+
+In this figure the credible intervals for the essentiality of all genes, defined by their 
+upper bounds (brown line) and lower bounds (black line) were plotted along the y-axis and
+the mean estimates of essentiality for the corresponding genes were plotted along the x-axis.
+The smaller the credible intervals, the more precisely we know the true essentiality level of the gene.
+As we see in this figure, credible intervals tend to be narrower for nonessential genes (on the right,
+with mean essentiality levels around 0) than for more essential genes (on the left, strongly negative mean
+essentiality levels.) Narrow credible intervals are indicative of a reliable screen of good quality which 
+allows robust assessment of essentiality levels for all genes. This is an example of a good screen with acceptable credible intervals.
+
+<img src="HT29_small/HT29_small_density_length_of_credible_interval.pdf" alt="drawing" width="300"/>
+<em>HT29_small_density_length_of_credible_interval.pdf</em> 
+
+This figure illustrates the distribution of the lengths of the credible intervals across all genes.
+
+<table><tr><td><img src="HT29_small/HT29_small_Rhat_credible_interval.pdf" width="250"/></td><td><img src="HT29_small/HT29_small_tail_ESS_credible_interval.pdf" width="250"/></td></tr></table>
+<em>HT29_small_Rhat_credible_interval.pdf</em> and <em>HT29_small_tail_ESS_credible_interval.pdf</em> 
+
+These are technical figures to check if there were any problems with the algorithm running on the dataset and 
+inferring reliable credible intervals. Problems would be indicated by correlations apparent from the figures above.
+There are no problems apparent in this case.
+
+extracted_output_HT29 has the following output
+1. sample summary: a data frame containing mean estimates of the essentiality ($means), credible intervals ($CI_lower_bounds for the lower bounds of the credible intervals, $CI_upper_bounds for the upper bounds), prob_essential_I: probability of being essential of type I (see below for illustration), prob_essential_II: probability of being essential of type II (higher level for essentiality, see below)
+2.  prop_expensive_sampling and pro_very_expensive_sampling: a technical measure of the percentage of genes for which more expensive sampling methods were required. 
+
+A gene of essentiality level II is highly essential. This level of essentiality is determined by comparing the posterior distribution of the gene to that of known core essential genes (@Hart2017) and core fitness genes (@Behan2019), for details see @Strauss2020, for illustrations see the examples further below. 
+
+To illustrate, essentiality levels I and II, we now run BSure on a small subset of genes (vector_of_genes=genes_HT29_small[seq(1,length(genes_HT29_small),10)]), this time plotting the posterior distributions by setting the variable plot_folder_name to the name of a subdirectory where the plots will be saved. 
+
+```{r,warnings=F,message=F}
+genes_HT29_small <- unique(HT29_lfc_small[,2])
+runBSure(lfc=HT29_lfc_small,save_file_name="HT29_lfc_small_sub",n_cores=2,min_tail_ESS=500,vector_of_genes=genes_HT29_small[seq(1,length(genes_HT29_small),10)],plot_folder_name="HT29_small_gene_distributions")
+```
+
+<img src="HT29_small_gene_distributions/ATP2A2.pdf" alt="drawing" width="400"/>
+An example of a highly essential gene. It is essential of level II with probability 1, as its posterior distribution is shifted by less than 1/3 compared to the distribution of core essential genes. 
+
+<img src="HT29_small_gene_distributions/DTL.pdf" alt="drawing" width="400"/>
+This gene is essential of level I because of the distinctness of its distribution from that of nonessential genes. Its evidence for being essential of level II is lower, as only part of its distribution is shifted less than 1/3 to the right compared to the distribution of core essential genes. 
+
+
+# BSure for genome-wide screens
+
+For genome-wide screens we recommend running BSure in parallel on 5-25 cores. The following example applies the method to the full genome-wide HT29 screen, from which the small dataset above was an extract. The code below runs BSure and plots credible intervals and diagnostic figures as illustrated above for the small example dataset. 
+
+```{r,eval=F}
+library(BSure)
+nCores <- 25
+data("counts_HT29")
+dir.create("results_HT29")
+nc <- ncol(counts_HT29)
+lfc <- cbind(counts_HT29[,1:2],compute_lfc_from_counts(counts_HT29[,-c(1:2,nc)],counts_HT29[,nc]))
+save_file_name <- "results_HT29/HT29_full"
+runBSure(lfc,save_file_name,nCores,2000)
+load(paste(save_file_name,".rda",sep=""))
+extracted_output <- extract_from_output(output)
+save(extracted_output,file=paste0(save_file_name,"_extracted_output.rda"))
+plot_credible_intervals(extracted_output,"results_HT29")
+```
+
+
+
+The figures compare for the screen analysed the following sets of genes: A) genes on a list of core essential (@Hart2017) and core fitness genes (@Behan2019). B) genes on a list of nonessential genes (@Hart2014), C) genes identified as essential of level I by the BSure method, D) genes identified as essential of level II by the BSure method. The following are characteristics of a screen of good power to distinguish between genes of different levels of essentiality. The main purpose of the scores below is across-screen comparison of screen quality and reliability. The suggested thresholds are therefore not hard cutoffs. 
+
+1. proportion_core_essential_in_essential_II, the proportion genes of essentiality level II among listed core essential and core fitness genes should be high, with a recommended minimum of 0.4.
+2. proportion_core_essential_in_essential_I, the proportion genes of essentiality level I among listed core essential and core fitness genes should be high, with a recommended minimum of 0.8.
+3. proportion_non_essential_genes_in_essential_II, the proportion of genes of essentiality level II amoung listed core essential and core fitness genes should be low, with a recommended maximum of 0.05.
+4. proportion_non_essential_genes_in_essential_I, the proportion of genes of essentiality level I amoung listed core essential and core fitness genes should be low, with a recommended maximum of 0.15.
+
+```{r,warnings=F,message=F,out.width = "80%"}
+data("HT29_full_extracted_output")
+extracted_gene_categories_HT29 <- extract_gene_categories(HT29_full_extracted_output)
+extracted_gene_categories_HT29$proportion_core_essential_in_essential_II
+extracted_gene_categories_HT29$proportion_core_essential_in_essential_I
+extracted_gene_categories_HT29$proportion_non_essential_genes_in_essential_II
+```
+
+
+# Comparisons of screens
+We load the processed output for screens on the K562 cell (Peets EM et al. Minimized double guide RNA libraries enable scale-limited CRISPR/Cas9 screens. bioRxiv. 2019) line with different Cas9 activity levels and different experiment coverage.
+
+```{r,warnings=F,message=F}
+data("resultsK562_highest_extracted_output") #screens with highest experiment coverage levels (160x-180x), lower Cas9 activity
+data("resultsK562_high_extracted_output") #120x-130x experiment coverage levels, lower Cas9 activity
+data("resultsK562_lowest_extracted_output") #25x-30x experiment coverage levels, lower Cas9 activity
+data("resultsK562_highCas9_extracted_output")#higher Cas9 activity, 134x coverage
+```
+
+
+```{r,warnings=F,message=F}
+extracted_gene_categories_highest <- extract_gene_categories(resultsK562_highCas9_extracted_output)
+```
+
+We compare the lengths of the credible intervals pairwise.
+
+```{r,warnings=F,message=F,out.width = "70%"}
+comparison_highest_lowest <- compare_length_of_credible_intervals(resultsK562_highest_extracted_output,resultsK562_lowest_extracted_output, "160x-180x","25x-30x")
+comparison_highest_high <- compare_length_of_credible_intervals(resultsK562_highest_extracted_output,resultsK562_high_extracted_output, "160x-180x","120x-130x")
+```
+
+
+
+
+# Session information
+
+```{r}
+sessionInfo()
+```

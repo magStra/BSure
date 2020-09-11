@@ -1,0 +1,99 @@
+#' Subset dgRNA datasets (Peets et al., 2019)
+library(BSure)
+data("counts_dgrna")
+extract_type_coverage_day_dir <- function(sample_name)
+{
+  a <- as.vector(strsplit(sample_name,"_")[[1]])
+  a[2] <- strsplit(a[2],"x")[[1]][1]
+  return(a)
+}
+saveLocation <- "counts_dgrna/"
+dir.create(saveLocation)
+counts <- as.matrix(counts_dgrna[,-(1:3)])
+sample_properties <- sapply(colnames(counts),extract_type_coverage_day_dir)
+sort(as.numeric(sample_properties[2,sample_properties[1,] == "K562-low"]))
+sort(as.numeric(sample_properties[2,sample_properties[1,] == "K562"]))
+
+rownames(sample_properties) <- c("cell line","coverage","day","direction")
+sort(as.numeric(sample_properties[2,]))
+
+counts_3 <- counts[,sample_properties[4,]=="3"]
+sequencingCoverage_3 <- colSums(counts_3)/nrow(counts_3)
+counts_5 <- as.matrix(counts[,sample_properties[4,]=="5"])
+
+lfc_all_3 <- compute_lfc_from_counts(counts_3[,-ncol(counts_3)],counts_3[,ncol(counts_3)])
+lfc_all_5 <- compute_lfc_from_counts(counts_5[,-ncol(counts_5)],counts_5[,ncol(counts_5),drop=F])
+
+lfc_K562.low_3 <- lfc_all_3[,sapply(colnames(lfc_all_3),function(x)
+{return(strsplit(x,"_")[[1]][1] == "K562-low")})]
+counts_K562.low_3 <- counts_3[,sapply(colnames(counts_3),function(x)
+{return(strsplit(x,"_")[[1]][1] == "K562-low")})]
+
+sequencingCoverage_K562.low_3 <- colSums(counts_K562.low_3)/nrow(counts_K562.low_3)
+experimentCoverage_K562.low_3 <- lapply(colnames(lfc_K562.low_3),function(x)
+{return(strsplit(x,"_")[[1]][2])})
+experimentCoverage_K562.low_3 <- lapply(experimentCoverage_K562.low_3,function(x)
+{return(as.numeric(strsplit(x,"x")[[1]][1]))})
+cor(unlist(experimentCoverage_K562.low_3),sequencingCoverage_K562.low_3)
+
+lfc_K562.low_3_lowest <- lfc_K562.low_3[,sapply(colnames(lfc_K562.low_3),function(x)
+{return(strsplit(x,"_")[[1]][2] %in% c("25x","30x"))})]
+lfc_K562.low_3_lowest <- cbind(counts_dgrna[,c(1,3)],lfc_K562.low_3_lowest)
+saveRDS(lfc_K562.low_3_lowest,file=paste(saveLocation,"lfc_K562.low_3_lowest.rds",sep=""))
+
+lfc_K562.low_3_low <- lfc_K562.low_3[,sapply(colnames(lfc_K562.low_3),function(x)
+{return(strsplit(x,"_")[[1]][2] %in% c("45x","55x"))})]
+lfc_K562.low_3_low <- cbind(counts_dgrna[,c(1,3)],lfc_K562.low_3_low)
+saveRDS(lfc_K562.low_3_low,file=paste(saveLocation,"lfc_K562.low_3_low.rds",sep=""))
+
+lfc_K562.low_3_mid <- lfc_K562.low_3[,sapply(colnames(lfc_K562.low_3),function(x)
+{return(strsplit(x,"_")[[1]][2] %in% c("90x","92x"))})]
+lfc_K562.low_3_mid <- cbind(counts_dgrna[,c(1,3)],lfc_K562.low_3_mid)
+saveRDS(lfc_K562.low_3_mid,file=paste(saveLocation,"lfc_K562.low_3_mid.rds",sep=""))
+
+lfc_K562.low_3_high <- lfc_K562.low_3[,sapply(colnames(lfc_K562.low_3),function(x)
+{return(strsplit(x,"_")[[1]][2] %in% c("120x","130x"))})]
+lfc_K562.low_3_high <- cbind(counts_dgrna[,c(1,3)],lfc_K562.low_3_high)
+saveRDS(lfc_K562.low_3_high,file=paste(saveLocation,"lfc_K562.low_3_high.rds",sep=""))
+
+lfc_K562.low_3_highest <- lfc_K562.low_3[,sapply(colnames(lfc_K562.low_3),function(x)
+{return(strsplit(x,"_")[[1]][2] %in% c("160x","180x"))})]
+lfc_K562.low_3_highest <- cbind(counts_dgrna[,c(1,3)],lfc_K562.low_3_highest)
+saveRDS(lfc_K562.low_3_highest,file=paste(saveLocation,"lfc_K562.low_3_highest.rds",sep=""))
+
+#average sequencing coverage for different levels of experiment coverage
+mean(colMeans(counts_3[,colnames(lfc_K562.low_3_lowest)[-(1:2)]]))#217.7504
+mean(colMeans(counts_3[,colnames(lfc_K562.low_3_mid)[-(1:2)]]))#152.0641
+mean(colMeans(counts_3[,colnames(lfc_K562.low_3_high)[-(1:2)]]))#185.7432
+mean(colMeans(counts_3[,colnames(lfc_K562.low_3_highest[-(1:2)])]))#259.0005
+
+#90x both 3' and 5', 180x only 3', only 5'
+lfc_K562.low_5 <- lfc_all_5[,sapply(colnames(lfc_all_5),function(x)
+{return(strsplit(x,"_")[[1]][1] == "K562-low")})]
+lfc_K562.low_5_90 <- lfc_K562.low_5[,sapply(colnames(lfc_K562.low_5),function(x)
+{return(strsplit(x,"_")[[1]][2] %in% c("90x"))})]
+lfc_K562.low_3_90 <- lfc_K562.low_3[,sapply(colnames(lfc_K562.low_3),function(x)
+{return(strsplit(x,"_")[[1]][2] %in% c("90x"))})]
+lfc_K562.low_90 <- cbind(lfc_K562.low_3_90,lfc_K562.low_5_90)
+lfc_K562.low_90 <- cbind(counts_dgrna[,c(1,3)],lfc_K562.low_90)
+saveRDS(lfc_K562.low_90,file=paste(saveLocation,"lfc_K562.low_90.rds",sep=""))
+
+lfc_K562.low_5_180 <- lfc_K562.low_5[,sapply(colnames(lfc_K562.low_5),function(x)
+{return(strsplit(x,"_")[[1]][2] %in% c("180x"))})]
+lfc_K562.low_5_180 <- cbind(counts_dgrna[,c(1,3)],lfc_K562.low_5_180)
+lfc_K562.low_3_180 <- lfc_K562.low_3[,sapply(colnames(lfc_K562.low_3),function(x)
+{return(strsplit(x,"_")[[1]][2] %in% c("180x"))})]
+lfc_K562.low_3_180 <- cbind(counts_dgrna[,c(1,3)],lfc_K562.low_3_180)
+lfc_K562.low_180 <- cbind(lfc_K562.low_3_180,lfc_K562.low_5_180[,-c(1:2)])
+lfc_K562.low_180 <- cbind(counts_dgrna[,c(1,3)],lfc_K562.low_180)
+saveRDS(lfc_K562.low_3_180,file=paste(saveLocation,"lfc_K562.low_3_180.rds",sep=""))
+saveRDS(lfc_K562.low_5_180,file=paste(saveLocation,"lfc_K562.low_5_180.rds",sep=""))
+saveRDS(lfc_K562.low_180,file=paste(saveLocation,"lfc_K562.low_180.rds",sep=""))
+
+lfc_higherCas9_high_coverage <- cbind(counts_dgrna[,c(1,3)],lfc_all_3[,"K562_134x_D14_3"],
+                                      lfc_all_5[,"K562_134x_D14_5"])
+saveRDS(lfc_higherCas9_high_coverage,file=paste(saveLocation,"lfc_higherCas9_high_coverage.rds",sep=""))
+#' Random subsets with 3 replicates from HT29 count data
+#'
+data("HT29_count_data")
+rand_subsets <- sapply(1:8,function(j) sample(1:12,3))

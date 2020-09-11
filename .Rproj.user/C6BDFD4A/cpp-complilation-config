@@ -1,0 +1,29 @@
+{
+    "args" : [
+        "-I/Users/ms58/Applications/RStudio.app/Contents/Resources/resources/libclang/builtin-headers/3.5",
+        "-I/Users/ms58/Applications/RStudio.app/Contents/Resources/resources/libclang/builtin-headers/libc++/3.5",
+        "-I/Users/ms58/Library/R/3.6/library/BH/include",
+        "-I/Users/ms58/Library/R/3.6/library/Rcpp/include",
+        "-I/Users/ms58/Library/R/3.6/library/RcppEigen/include",
+        "-I/Users/ms58/Library/R/3.6/library/RcppParallel/include",
+        "-I/Users/ms58/Library/R/3.6/library/rstan/include",
+        "-I/Users/ms58/Library/R/3.6/library/StanHeaders/include",
+        "-std=gnu++14",
+        "-I/Library/Frameworks/R.framework/Resources/include",
+        "-DNDEBUG",
+        "-I/Users/ms58/Documents/BSure/inst/include",
+        "-I/Users/ms58/Library/R/3.6/library/StanHeaders/include/src",
+        "-DBOOST_DISABLE_ASSERTS",
+        "-DEIGEN_NO_DEBUG",
+        "-DBOOST_MATH_OVERFLOW_ERROR_POLICY=errno_on_error",
+        "-isysroot",
+        "-I/usr/local/include",
+        "-I'/Users/ms58/Library/R/3.6/library/RcppParallel/include'",
+        "-D_REENTRANT",
+        "-DSTAN_THREADS",
+        "-fPIC"
+    ],
+    "hash" : "159957073615997370011599737001",
+    "is_cpp" : true,
+    "pch" : "Rcpp"
+}

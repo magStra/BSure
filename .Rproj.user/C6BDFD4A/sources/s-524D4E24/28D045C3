@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1599750184964.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3642595673",
+    "id" : "28D045C3",
+    "lastKnownWriteTime" : 1599820059,
+    "last_content_update" : 1599820059842,
+    "path" : "~/Documents/BSure/vignettes/BSure.Rmd",
+    "project_path" : "vignettes/BSure.Rmd",
+    "properties" : {
+        "cursorPosition" : "156,379",
+        "scrollLine" : "147",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

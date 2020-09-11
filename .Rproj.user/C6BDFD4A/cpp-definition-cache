@@ -1,0 +1,32 @@
+[
+    {
+        "definitions" : [
+        ],
+        "file" : "/Users/ms58/Documents/BSure/inst/include/stan_meta_header.hpp",
+        "file_last_write" : 1598975133
+    },
+    {
+        "definitions" : [
+        ],
+        "file" : "/Users/ms58/Documents/BSure/src/stanExports_BSure.cc",
+        "file_last_write" : 1599737000
+    },
+    {
+        "definitions" : [
+        ],
+        "file" : "/Users/ms58/Documents/BSure/src/stanExports_BSure.h",
+        "file_last_write" : 1599737000
+    },
+    {
+        "definitions" : [
+        ],
+        "file" : "/Users/ms58/Documents/BSure/src/stanExports_computeParamsMultivariateN.cc",
+        "file_last_write" : 1599737001
+    },
+    {
+        "definitions" : [
+        ],
+        "file" : "/Users/ms58/Documents/BSure/src/stanExports_computeParamsMultivariateN.h",
+        "file_last_write" : 1599737001
+    }
+]
