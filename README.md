@@ -2,6 +2,14 @@
 
 To install this R package
 
+if(!require(BiocManager))
+
+{install.packages("BiocManager")}
+
+if(!require(BiocStyle))
+
+{BiocManager::install("BiocStyle")}
+
 library(devtools)
 
 install_github("magStra/BSure",build_vignettes = T,force=T,dependencies=T)
