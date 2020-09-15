@@ -225,7 +225,7 @@ The figures above suggest 120x-130x is the optimal coverage, as credible interva
 
 # Comparing across cell lines
 
-To compare essentiality types in different cell lines (here K562 from @Peets2020 and HT29 from @Allen2019) robustly, we
+To compare essentiality types in different cell lines (here K562 from @Peets2019 and HT29 from @Allen2019) robustly, we
 compare sets of essential genes of levels I and II (with significance levels as detailed above) and sets of unessential genes of levels I and II (unessential with the same significance levels), and determine if there are overlaps between significantly essential genes in one cell line and significantly unessential genes in the other. 
 
 ```{r}

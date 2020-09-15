@@ -16,6 +16,7 @@ RoxygenNote: 7.1.1
 Biarch: true
 Depends: 
     R (>= 3.4.0)
+biocViews:
 Imports: 
     methods,
     Rcpp (>= 0.12.0),
@@ -27,7 +28,10 @@ Imports:
     ggplot2,
     ggpubr,
     ggthemes,
-    rootSolve
+    rootSolve,
+    knitr,
+    rmarkdown,
+    BiocStyle
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),
@@ -36,5 +40,4 @@ LinkingTo:
     rstan (>= 2.18.1),
     StanHeaders (>= 2.18.0)
 SystemRequirements: GNU make
-Suggests: knitr, rmarkdown, BiocStyle
 VignetteBuilder: knitr
