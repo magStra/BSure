@@ -307,7 +307,7 @@ runBSure <- function(lfc,save_file_name,n_cores,min_tail_ESS=500,vector_of_genes
     dir.create(plot_folder_name)
     plot_posterior <- T
   }
-  clusterExport(mcluster, c("distNE","distEss","plot_folder_name","plot_posterior"),envir=environment())
+  parallel::clusterExport(mcluster, c("distNE","distEss","plot_folder_name","plot_posterior"),envir=environment())
   runInfCompare <- function(geneName)
   {
     if (any(gRNAToGene[,2]==geneName))
