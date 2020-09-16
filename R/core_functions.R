@@ -280,7 +280,7 @@ runBSure <- function(lfc,save_file_name,n_cores,min_tail_ESS=500,vector_of_genes
     output$posterior <- output$posterior[seq(1,nrow(output$posterior),by = floor(nrow(output$posterior)/300)),1]
     return(output)}
   }
-  mcluster <- parallel::makeCluster(n_cores,setup_strategy = "sequential")
+  mcluster <- parallel::makeCluster(n_cores)
   parallel::clusterExport(mcluster, c("runInfStore300Samples","core_function_1gene","quantile","lfc","priorDists","geneNames",
                             "sampling","ess_tail","ess_bulk","Rhat","gRNAToGene","geneNames","save_file_name",
                             "coreEssGenes","nonEssGenes","min_tail_ESS"),envir=environment())
