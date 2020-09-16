@@ -53,10 +53,10 @@ HT29_lfc_small <- cbind(HT29_small$sgRNA,HT29_small$gene,lfc_small)#required for
 #log-fold changes for all replicates
 ```
 
-Now we can run the BSure algorithm
+Now we can run the BSure algorithm. For the small dataset, we can run it on one compute core.
 
 ```{r,warnings=F,message=F,eval=F}
-runBSure(lfc=HT29_lfc_small,save_file_name="HT29_lfc_small",n_cores=2,min_tail_ESS=500)
+runBSure(lfc=HT29_lfc_small,save_file_name="HT29_lfc_small",min_tail_ESS=500)
 ```
 
 and analyse the output. 
@@ -117,7 +117,7 @@ This gene is essential of type I because of the distinctness of its distribution
 
 # BSure for genome-wide screens
 
-For genome-wide screens we recommend running BSure in parallel on 5-25 cores. The following example applies the method to the full genome-wide HT29 screen, from which the small dataset above was an extract. The code below runs BSure and plots credible intervals and diagnostic figures as illustrated above for the small example dataset. 
+For genome-wide screens we recommend running BSure in parallel on 5-25 cores. The following example applies the method to the full genome-wide HT29 screen, from which the small dataset above was an extract. The code below runs BSure and plots credible intervals and diagnostic figures as illustrated above for the small example dataset. As running this function on a genome-wide screen is computationally more expensive and because of current problems concerning the parallel package if used with RStudio in connection with R-4, the following code cannot be run from RStudio with R-4.0.0-R-4.0.2.
 
 ```{r,eval=F}
 library(BSure)
