@@ -235,7 +235,7 @@ core_function_1gene <- function(lfc_gene, gene_name,prior,keep_samples=F,plot_po
 #' @examples data(HT29_lfc_small)
 #' runBSure(lfc_small,save_file_name = "temp",n_cores = 2,min_tail_ESS = 500)
 #' @export
-runBSure <- function(lfc,save_file_name,n_cores,min_tail_ESS=500,vector_of_genes=NULL,
+runBSure <- function(lfc,save_file_name,n_cores=1,min_tail_ESS=500,vector_of_genes=NULL,
                      plot_folder_name=NULL)
 {
   gRNAToGene <- as.matrix(lfc[,1:2])
@@ -280,15 +280,21 @@ runBSure <- function(lfc,save_file_name,n_cores,min_tail_ESS=500,vector_of_genes
     output$posterior <- output$posterior[seq(1,nrow(output$posterior),by = floor(nrow(output$posterior)/300)),1]
     return(output)}
   }
-  mcluster <- parallel::makeCluster(n_cores)
-  parallel::clusterExport(mcluster, c("runInfStore300Samples","core_function_1gene","quantile","lfc","priorDists","geneNames",
-                            "sampling","ess_tail","ess_bulk","Rhat","gRNAToGene","geneNames","save_file_name",
-                            "coreEssGenes","nonEssGenes","min_tail_ESS"),envir=environment())
+  if (n_cores > 1)
+  {
+    mcluster <- parallel::makeCluster(n_cores)
+    parallel::clusterExport(mcluster, c("runInfStore300Samples","core_function_1gene","quantile","lfc","priorDists","geneNames",
+                              "sampling","ess_tail","ess_bulk","Rhat","gRNAToGene","geneNames","save_file_name",
+                              "coreEssGenes","nonEssGenes","min_tail_ESS"),envir=environment())
 
-  outputNE <- parSapply(mcluster,intersect(geneNames,nonEssGenes),runInfStore300Samples)
-  save(outputNE,file= paste(save_file_name,"_EssentialNE.rda",sep=""))
-  outputEss <- parSapply(mcluster,intersect(geneNames,coreEssGenes),runInfStore300Samples)
+    outputNE <- parSapply(mcluster,intersect(geneNames,nonEssGenes),runInfStore300Samples)
+    outputEss <- parSapply(mcluster,intersect(geneNames,coreEssGenes),runInfStore300Samples)
+  } else{
+    outputNE <- sapply(intersect(geneNames,nonEssGenes),runInfStore300Samples)
+    outputEss <- sapply(intersect(geneNames,coreEssGenes),runInfStore300Samples)
+  }
   save(outputEss,file= paste(save_file_name,"_EssentialEss.rda",sep=""))
+  save(outputNE,file= paste(save_file_name,"_EssentialNE.rda",sep=""))
   distNE <- c()
   for (j in 1:length(intersect(geneNames,nonEssGenes)))
   {
@@ -299,7 +305,6 @@ runBSure <- function(lfc,save_file_name,n_cores,min_tail_ESS=500,vector_of_genes
   {
     distEss <- cbind(distEss,outputEss[,j]$posterior)
   }
-
   save(distNE,distEss,file=paste(save_file_name,"distEssNE.rda",sep=""))
   plot_posterior <- F
   if (!(is.null(plot_folder_name)))
@@ -307,7 +312,8 @@ runBSure <- function(lfc,save_file_name,n_cores,min_tail_ESS=500,vector_of_genes
     dir.create(plot_folder_name)
     plot_posterior <- T
   }
-  parallel::clusterExport(mcluster, c("distNE","distEss","plot_folder_name","plot_posterior"),envir=environment())
+  if (n_cores > 1){
+  parallel::clusterExport(mcluster, c("distNE","distEss","plot_folder_name","plot_posterior"),envir=environment())}
   runInfCompare <- function(geneName)
   {
     if (any(gRNAToGene[,2]==geneName))
@@ -349,8 +355,13 @@ runBSure <- function(lfc,save_file_name,n_cores,min_tail_ESS=500,vector_of_genes
   }
   if (is.null(vector_of_genes))
   {vector_of_genes <- geneNames}
-  output <- parSapply(mcluster,vector_of_genes,runInfCompare)
+  if (n_cores > 1){
+    output <- parSapply(mcluster,vector_of_genes,runInfCompare)} else
+    {
+      output <- sapply(vector_of_genes,runInfCompare)
+    }
   save(output,file= paste(save_file_name,".rda",sep=""))
-  stopCluster(mcluster)
+  if (n_cores > 1){
+    stopCluster(mcluster)}
 }
 
