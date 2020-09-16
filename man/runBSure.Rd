@@ -7,7 +7,7 @@
 runBSure(
   lfc,
   save_file_name,
-  n_cores,
+  n_cores = 1,
   min_tail_ESS = 500,
   vector_of_genes = NULL,
   plot_folder_name = NULL
