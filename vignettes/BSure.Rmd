@@ -105,7 +105,7 @@ To illustrate, essentiality types I and II, we now run BSure on a small subset o
 
 ```{r,warnings=F,message=F}
 genes_HT29_small <- unique(HT29_lfc_small[,2])
-runBSure(lfc=HT29_lfc_small,save_file_name="HT29_lfc_small_sub",n_cores=2,min_tail_ESS=500,vector_of_genes=genes_HT29_small[seq(1,length(genes_HT29_small),10)],plot_folder_name="HT29_small_gene_distributions")
+runBSure(lfc=HT29_lfc_small,save_file_name="HT29_lfc_small_sub",n_cores=1,min_tail_ESS=500,vector_of_genes=genes_HT29_small[seq(1,length(genes_HT29_small),10)],plot_folder_name="HT29_small_gene_distributions")
 ```
 
 <img src="HT29_small_gene_distributions/ATP2A2.pdf" alt="drawing" width="400"/>
