@@ -4,41 +4,43 @@
 \alias{extract_gene_categories}
 \title{extract_gene_categories}
 \usage{
-extract_gene_categories(extracted_output, FDR = 0.05)
+extract_gene_categories(
+  extracted_output,
+  FDR = 0.05,
+  FDR_not = 0.005,
+  figures = T
+)
 }
 \arguments{
 \item{extracted_output}{output of the function extract_from_output}
 
-\item{FDR}{set to 0.05 by default; maximum false positive rate for all gene sets}
+\item{FDR}{set to 0.05 by default; maximum false positive rate for all gene sets, set FDR to NULL, if you
+want to control the false negative rate (FNR) instead of the FDR
+FNR set to NULL by default (no controlling of FNR), cannot be set to a value other than NULL unless FDR is set to NULL}
 }
 \value{
-essential_genes_II highly essential genes of essentiality level II (see above)
-essential_genes_I genes of essentiality level I (see above), this set should contain almost all of the genes of
-essentiality level II. If it does not, this indicates poor screen quality.
+essential_genes_II  genes of essentiality level II (see above)
+essential_genes_I genes of essentiality level I (see above).
 proportion_core_essential_in_essential_II which proportion of core essential genes is in the essential genes
 II group
 (as core essential genes we use the intersection of core essential genes from  Hart and Moffat (2016) and
 Behan et al. (2019))
-not_essential_genes_II genes that are unessential of type II with a probability with FDR at most 0.05 (unless specified otherwise)
-and individual probability at least 0.9
-not_essential_genes_I genes that are unessential of type I with a probability with FDR at most 0.05 (unless specified otherwise)
-and individual probability at least 0.9
+not_essential_genes_II genes that are unessential of type II with FDR of 0.05.
+not_essential_genes_I genes that are unessential of type I with FDR of 0.05.
 proportion_core_essential_in_essential_I proportion of core essential genes in essential I group
 proportion_non_essential_genes_in_essential_II proportion of nonessential genes in essential II group
 (nonessential as in Hart and Moffat (2016)); this number should be zero or very close to 0
 proportion_non_essential_genes_in_essential_I proportion of nonessential genes in essential I group
 score A summary score for the ability of a screen to separate core essential and nonessential genes.
-false_negative_rate_essential_II False negative rate for genes essential of type II. This is equal to 0.05 (unless specified otherwise) unless
-the individual cutoff of a 90\% probability of being essential type II for each gene was stricter (see above).
+false_negative_rate_essential_II False negative rate for genes essential of type II.
 false_positive_rate_essential_II False positive rate for genes essential of type II.
-false_negative_rate_essential_I False negative rate for genes essential of type I. This is equal to 0.05 (unless specified otherwise) unless
-the individual cutoff of a 90\% probability of being essential type I for each gene was stricter (see above).
+false_negative_rate_essential_I False negative rate for genes essential of type I.
 false_positive_rate_essential_I False positive rate for genes essential of type I.
-false_negative_rate_not_essential_II False negative rate for genes unessential of type II. This is equal to 0.05 (unless specified otherwise) unless
-the individual cutoff of a 90\% probability of being unessential type II for each gene was stricter (see above).
+false_negative_rate_not_essential_II False negative rate for genes unessential of type II.
+This is equal to 0.05 (unless specified otherwise).
 false_positive_rate_not_essential_II False positive rate for genes unessential of type II.
-false_negative_rate_not_essential_I False negative rate for genes unessential of type I. This is equal to 0.05 (unless specified otherwise) unless
-the individual cutoff of a 90\% probability of being unessential type I for each gene was stricter (see above).
+false_negative_rate_not_essential_I False negative rate for genes unessential of type I.
+This is equal to 0.05 (unless specified otherwise).
 false_positive_rate_not_essential_I False positive rate for genes unessential of type I.
 }
 \description{
@@ -46,9 +48,8 @@ This function extracts sets of
 \enumerate{
 \item highly essential genes (essentiality level II, the posterior distribution
 of the essentiality is shifted less than 1/3 compared to a typical core-essential gene
-with FDR at most 0.05 and individual probability at least 0.9
-\item genes confidently not nonessential with FDR at most 0.05 and
-individual probability at least 0.9 (essentiality level I)
+with with FDR of 0.05, unless a different FDR is specified
+\item genes confidently not nonessential with FDR of 0.05, unless a different FDR is specified (essentiality level I)
 }
 }
 \references{

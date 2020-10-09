@@ -323,19 +323,16 @@ runBSure <- function(lfc,save_file_name,n_cores=1,min_tail_ESS=500,vector_of_gen
       save_file_name <- paste0(plot_folder_name,"/",geneName)
       output <- core_function_1gene(lfc=lfc_gene, geneName, prior=priorDists,keep_samples=T,
                                   plot_posterior=plot_posterior,file_name= paste0(save_file_name,".pdf"),min_tail_ESS=min_tail_ESS)
-      lNE <- floor(0.5*min(length(distNE),length(output$posterior[,1])))
-      xy <- sample(1:length(distNE),2*lNE,F)
-      xx <- xy[1:lNE]
-      yy <- xy[(lNE+1):(2*lNE)]
+      lNE <- min(length(distNE),length(output$posterior[,1]))
+      xx <- sample(1:length(distNE),lNE,F)
       distNE1 <- distNE[xx]
-      distNE2 <- distNE[yy]
-      lE <- floor(0.5*min(length(distEss),length(output$posterior[,1])))
-      xy1 <- sample(1:length(distEss),2*lE,F)
+      lE <- min(length(distEss),length(output$posterior[,1]))
+      xy1 <- sample(1:length(distEss),lE,F)
       distEss <- distEss[xy1]
-      samplesOutputEss <- sample(output$posterior[,1],2*lE,replace=F)
+      samplesOutputEss <- sample(output$posterior[,1],lE,replace=F)
       samplesOutputNE <- sample(output$posterior[,1],lNE,replace=F)
       output$probability_essential_II <- sum(sort(samplesOutputEss) < sort(distEss) + 1/3)/length(distEss)
-      output$probability_essential_I <- sum(samplesOutputEss[1:lE] < distNE1 & distNE2 > distNE1)/sum(distNE2>distNE1)
+      output$probability_essential_I <- sum(samplesOutputNE < distNE1)/length(distNE1)
       if (!(is.null(plot_folder_name)))
       {
         pdf(paste0(save_file_name,".pdf"),height=8.8/2.54,width = 13/2.54)

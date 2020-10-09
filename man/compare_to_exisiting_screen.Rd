@@ -5,26 +5,17 @@
 \title{compare_to_exisiting_screen
 Compares a new screen to your gold-standard screen. For example, your gold-standard screen may be of high
 coverage and your new screen of lower coverage, and you want to check whether essential genes of type I or II
-from the gold standard screen are also recovered by the new screen. The function takes into account false
-positive and false negative rates for the gold standard.}
+from the gold standard screen are also recovered by the new screen.}
 \usage{
-compare_to_exisiting_screen(
-  gene_set_new_screen,
-  gene_set_gold_standard,
-  false_positive_rate_gold_standard,
-  false_negative_rate_gold_standard
-)
+compare_to_exisiting_screen(extracted_output_1, extracted_output_2)
 }
 \value{
-proportion_genes_recovered Proportion of genes from gene_set_gold_standard that is recovered in the new
-screen, accounting for false positives in the gold standard screen
-proportion_genes_not_in_gold_standard_set Proportion of genes from gene_set_new_screen that are not in gene_set_gold_standard,
-accounting for false negatives in the gold standard screen
+proportion_genes_recovered Proportion of genes essential of both type I and II in the first screen that
+is essential of either type in the second screen.
 }
 \description{
 compare_to_exisiting_screen
 Compares a new screen to your gold-standard screen. For example, your gold-standard screen may be of high
 coverage and your new screen of lower coverage, and you want to check whether essential genes of type I or II
-from the gold standard screen are also recovered by the new screen. The function takes into account false
-positive and false negative rates for the gold standard.
+from the gold standard screen are also recovered by the new screen.
 }

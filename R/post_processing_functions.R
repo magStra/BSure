@@ -54,40 +54,36 @@ extract_from_output <- function(BSure_output)
 #' This function extracts sets of
 #' 1) highly essential genes (essentiality level II, the posterior distribution
 #' of the essentiality is shifted less than 1/3 compared to a typical core-essential gene
-#' with FDR at most 0.05 and individual probability at least 0.9
-#' 2) genes confidently not nonessential with FDR at most 0.05 and
-#' individual probability at least 0.9 (essentiality level I)
+#' with with FDR of 0.05, unless a different FDR is specified
+#' 2) genes confidently not nonessential with FDR of 0.05, unless a different FDR is specified (essentiality level I)
 #' @title extract_gene_categories
 #' @import eulerr
 #' @param extracted_output output of the function extract_from_output
-#' @param FDR set to 0.05 by default; maximum false positive rate for all gene sets
-#' @return essential_genes_II highly essential genes of essentiality level II (see above)
-#' essential_genes_I genes of essentiality level I (see above), this set should contain almost all of the genes of
-#' essentiality level II. If it does not, this indicates poor screen quality.
+#' @param FDR set to 0.05 by default; maximum false positive rate for all gene sets, set FDR to NULL, if you
+#' want to control the false negative rate (FNR) instead of the FDR
+#' FNR set to NULL by default (no controlling of FNR), cannot be set to a value other than NULL unless FDR is set to NULL
+#' @return essential_genes_II  genes of essentiality level II (see above)
+#' essential_genes_I genes of essentiality level I (see above).
 #' proportion_core_essential_in_essential_II which proportion of core essential genes is in the essential genes
 #' II group
 #' (as core essential genes we use the intersection of core essential genes from  Hart and Moffat (2016) and
 #' Behan et al. (2019))
-#' not_essential_genes_II genes that are unessential of type II with a probability with FDR at most 0.05 (unless specified otherwise)
-#' and individual probability at least 0.9
-#' not_essential_genes_I genes that are unessential of type I with a probability with FDR at most 0.05 (unless specified otherwise)
-#' and individual probability at least 0.9
+#' not_essential_genes_II genes that are unessential of type II with FDR of 0.05.
+#' not_essential_genes_I genes that are unessential of type I with FDR of 0.05.
 #' proportion_core_essential_in_essential_I proportion of core essential genes in essential I group
 #' proportion_non_essential_genes_in_essential_II proportion of nonessential genes in essential II group
 #' (nonessential as in Hart and Moffat (2016)); this number should be zero or very close to 0
 #' proportion_non_essential_genes_in_essential_I proportion of nonessential genes in essential I group
 #' score A summary score for the ability of a screen to separate core essential and nonessential genes.
-#' false_negative_rate_essential_II False negative rate for genes essential of type II. This is equal to 0.05 (unless specified otherwise) unless
-#' the individual cutoff of a 90% probability of being essential type II for each gene was stricter (see above).
+#' false_negative_rate_essential_II False negative rate for genes essential of type II.
 #' false_positive_rate_essential_II False positive rate for genes essential of type II.
-#' false_negative_rate_essential_I False negative rate for genes essential of type I. This is equal to 0.05 (unless specified otherwise) unless
-#' the individual cutoff of a 90% probability of being essential type I for each gene was stricter (see above).
+#' false_negative_rate_essential_I False negative rate for genes essential of type I.
 #' false_positive_rate_essential_I False positive rate for genes essential of type I.
-#' false_negative_rate_not_essential_II False negative rate for genes unessential of type II. This is equal to 0.05 (unless specified otherwise) unless
-#' the individual cutoff of a 90% probability of being unessential type II for each gene was stricter (see above).
+#' false_negative_rate_not_essential_II False negative rate for genes unessential of type II.
+#' This is equal to 0.05 (unless specified otherwise).
 #' false_positive_rate_not_essential_II False positive rate for genes unessential of type II.
-#' false_negative_rate_not_essential_I False negative rate for genes unessential of type I. This is equal to 0.05 (unless specified otherwise) unless
-#' the individual cutoff of a 90% probability of being unessential type I for each gene was stricter (see above).
+#' false_negative_rate_not_essential_I False negative rate for genes unessential of type I.
+#' This is equal to 0.05 (unless specified otherwise).
 #' false_positive_rate_not_essential_I False positive rate for genes unessential of type I.
 #'
 #' @references Hart T, Moffat J.
@@ -96,7 +92,7 @@ extract_from_output <- function(BSure_output)
 #' Behan FM et al. Prioritization of cancer therapeutic targets using CRISPR–Cas9 screens.
 #' Nature. 2019;568(7753):511–516
 #' @export
-extract_gene_categories <- function(extracted_output,FDR=0.05)
+extract_gene_categories <- function(extracted_output,FDR=0.05,FDR_not=0.005,figures=T)
 {
   data(auxData)
   coreEssGenes <- intersect(CEGv2,coreFitnessBehanEtAl)
@@ -105,13 +101,13 @@ extract_gene_categories <- function(extracted_output,FDR=0.05)
   coreEssGenes <- intersect(coreEssGenes,extracted_output$sample_summary$gene_names)
   nonEssGenes <- intersect(nonEssGenes,extracted_output$sample_summary$gene_names)
   probs_essential_II <- extracted_output$sample_summary$prob_essential_II
-  alpha0 <- max(0.9,.findOptimalAlpha(probs_essential_II,FDR))
+  alpha0 <- .findOptimalAlpha(probs_essential_II,FDR)
   probs_essential_I <- extracted_output$sample_summary$prob_essential_I
-  alpha1 <- max(0.9,.findOptimalAlpha(probs_essential_I,FDR))
+  alpha1 <-.findOptimalAlpha(probs_essential_I,FDR)
   probs_not_essential_II <- 1- probs_essential_II
   probs_not_essential_I <- 1- probs_essential_I
-  alpha2 <- max(0.9,.findOptimalAlpha(probs_not_essential_II,FDR))
-  alpha3 <- max(0.9,.findOptimalAlpha(probs_not_essential_I,FDR))
+  alpha2 <- .findOptimalAlpha(probs_not_essential_II,FDR_not)
+  alpha3 <- .findOptimalAlpha(probs_not_essential_I,FDR_not)
   output$essential_genes_II<- extracted_output$sample_summary$gene_names[probs_essential_II>alpha0]
   output$essential_genes_I <- extracted_output$sample_summary$gene_names[probs_essential_I>alpha1]
   output$not_essential_genes_II<- extracted_output$sample_summary$gene_names[probs_essential_II>alpha2]
@@ -129,16 +125,19 @@ extract_gene_categories <- function(extracted_output,FDR=0.05)
                  "core essential genes",
                  "nonessential genes")
   names(gene_set_list) <- names_set
+  if(figures==T)
   print(.plot_Venn_diagram(gene_set_list))
   gene_set_list <- list(output$essential_genes_I,coreEssGenes,nonEssGenes)
   names_set <- c("essential (I)",
                  "core essential genes",
                  "nonessential genes")
   names(gene_set_list) <- names_set
+  if(figures==T)
   print(.plot_Venn_diagram(gene_set_list))
   gene_set_list <- list(output$essential_genes_I,output$essential_genes_II)
   names_set <- c("essential (II)","essential (I)")
   names(gene_set_list) <- names_set
+  if(figures==T)
   print(.plot_Venn_diagram(gene_set_list))
   output$score <- sqrt(output$proportion_core_essential_in_essential_II*output$proportion_core_essential_in_essential_I)-
     output$proportion_non_essential_genes_in_essential_I
@@ -166,9 +165,18 @@ library(RColorBrewer)
   return(sum(probs*(probs<=alpha))/sum(probs<=alpha))
 }
 
+
+####work in this
 #' @import rootSolve
 .findOptimalAlpha <- function(probs,FDR=0.05)
-{ return(uniroot(function(alpha) return(.false_positive_rate(probs,alpha)-FDR),c(min(probs)+10^-10,sort(probs,decreasing=T)[2]-10^-10))$root)}
+{
+  if (.false_positive_rate(probs,max(probs)-0.001) >= FDR)
+    return(max(probs)) else{
+    return(uniroot(function(alpha) return(.false_positive_rate(probs,alpha)-FDR),c(min(probs)+0.001,max(probs)-0.001))$root)}}
+
+.findOptimalAlpha_FNR <- function(probs,FNR=0.05)
+{ return(min(1,uniroot(function(alpha) return(.false_negative_rate(probs,alpha)-FDR),c(0,max(probs)-10^10))$root))}
+
 
 #' @import eulerr
 .plot_Venn_diagram <- function(gene_set_list,file_name,res=1200)
@@ -181,28 +189,20 @@ library(RColorBrewer)
 #' @title compare_to_exisiting_screen
 #' Compares a new screen to your gold-standard screen. For example, your gold-standard screen may be of high
 #' coverage and your new screen of lower coverage, and you want to check whether essential genes of type I or II
-#' from the gold standard screen are also recovered by the new screen. The function takes into account false
-#' positive and false negative rates for the gold standard.
-#' @params gene_set_new_screen Set of essential genes of type I or II from new screen, computed using the function
-#' extract_gene_categories.
-#' gene_set_gold_standard Set of essential genes of type I or II from gold standard.
-#' false_positive_rate_gold_standard False positive rate for gene set from gold standard.
-#' false_negative_rate_gold_standard False negative rate for gene set from gold standard.
-#' @return proportion_genes_recovered Proportion of genes from gene_set_gold_standard that is recovered in the new
-#' screen, accounting for false positives in the gold standard screen
-#' proportion_genes_not_in_gold_standard_set Proportion of genes from gene_set_new_screen that are not in gene_set_gold_standard,
-#' accounting for false negatives in the gold standard screen
+#' from the gold standard screen are also recovered by the new screen.
+#' @params extracted_output output of the function extract_from_output
+#' @return proportion_genes_recovered Proportion of genes essential of both type I and II in the first screen that
+#' is essential of either type in the second screen.
 #' @export
 
-compare_to_exisiting_screen <- function(gene_set_new_screen,gene_set_gold_standard,false_positive_rate_gold_standard,
-                                     false_negative_rate_gold_standard)
+compare_to_exisiting_screen <- function(extracted_output_1,extracted_output_2)
 {
+  extracted_genes_1 <- extract_gene_categories(extracted_output_1,FDR=0.1,figures=F)
+  extracted_genes_2 <- extract_gene_categories(extracted_output_2,FDR=0.1,figures=F)
   output <- c()
-  output$proportion_genes_recovered <- min(1,length(intersect(gene_set_new_screen,gene_set_gold_standard))/(
-    length(gene_set_gold_standard)*(1-false_positive_rate_gold_standard)))
-
-  output$proportion_genes_not_in_gold_standard_set <-  min(1,length(setdiff(gene_set_new_screen,gene_set_gold_standard))/
-    length(gene_set_new_screen)*(1-false_negative_rate_gold_standard))
+  genes_1 <- intersect(extracted_genes_1$essential_genes_I,extracted_genes_1$essential_genes_II)
+  genes_2 <- c(extracted_genes_2$essential_genes_I,extracted_genes_2$essential_genes_II)
+  output$proportion_genes_recovered <- length(intersect(genes_1,genes_2))/length(genes_1)
   return(output)
 }
 
