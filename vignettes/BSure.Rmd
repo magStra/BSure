@@ -103,7 +103,7 @@ Essentiality of type II is determined by comparing the posterior distribution of
 
 To illustrate, essentiality types I and II, we now run BSure on a small subset of genes (vector_of_genes=genes_HT29_small[seq(1,length(genes_HT29_small),10)]), this time plotting the posterior distributions by setting the variable plot_folder_name to the name of a subdirectory where the plots will be saved. 
 
-```{r,warnings=F,message=F}
+```{r,warnings=F,message=F,results='hide'}
 genes_HT29_small <- unique(HT29_lfc_small[,2])
 runBSure(lfc=HT29_lfc_small,save_file_name="HT29_lfc_small_sub",n_cores=1,min_tail_ESS=500,vector_of_genes=genes_HT29_small[seq(1,length(genes_HT29_small),10)],plot_folder_name="HT29_small_gene_distributions")
 ```
