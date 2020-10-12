@@ -29,3 +29,15 @@ library(BSure)
 
 vignette("BSure")
 
+Further troubleshooting concerning rstan - advice from a college (Windows), see also https://cran.r-project.org/web/packages/tlrmvnmvt/readme/README.html and https://github.com/stan-dev/stan/issues/1613:
+
+dotR <- file.path(Sys.getenv("HOME"), ".R")
+if (!file.exists(dotR)) 
+dir.create(dotR)
+M <- file.path(dotR, "Makevars.win")
+if (!file.exists(M)) 
+file.create(M)
+cat("\nCXX14FLAGS=-O3 -Wno-unused-variable -Wno-unused-function",
+"CXX14 = $(BINPREF)g++ -m$(WIN) -std=c++1y",
+"CXX11FLAGS=-O3 -Wno-unused-variable -Wno-unused-function",
+file = M, sep = "\n", append = TRUE)
