@@ -14,14 +14,24 @@ compute_lfc_from_counts <- function(counts,controls)
   colSumsCounts <- colMeans(counts,na.rm = T)*nrow(counts)
   controls <- as.matrix(controls)
   counts <- as.matrix(counts)
-  counts <- t(apply(counts,1,function(x) {return(x/colSumsCounts*10^6)}))
+  log_counts <- t(apply(counts,1,function(x) {return(log2(x/colSumsCounts*10^6+1))}))
   colSumsControls <- colMeans(controls,na.rm = T)*nrow(controls)
-  controls <- t(apply(controls,1,function(x) {return(x/colSumsControls*10^6)}))
-  v <- rowMeans(log2(controls+1),na.rm=T)
-  diff <- apply(as.matrix(counts),2,function(x) return(log2(x+1)-v))
+  controls <- as.matrix(controls)
+  if (ncol(controls) > nrow(controls))
+  {
+    controls <- t(controls)
+  }
+  log_controls <- as.matrix(apply(controls,1,function(x) {return(log2(x/colSumsControls*10^6+1))}))
+  if (ncol(log_controls) > nrow(log_controls))
+  {
+    log_controls <- t(log_controls)
+  }
+  v <- rowMeans(log_controls,na.rm=T)
+  diff <- apply(as.matrix(log_counts),2,function(x) return(x-v))
   rownames(diff) <- rownames(counts)
-  return((diff))
+  return(diff)
 }
+
 
 
 #' @title compute_mean_lfc
