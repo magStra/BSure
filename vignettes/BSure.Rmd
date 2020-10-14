@@ -103,7 +103,7 @@ Essentiality of type II is determined by comparing the posterior distribution of
 
 To illustrate, essentiality types I and II, we now run BSure on a small subset of genes (vector_of_genes=genes_HT29_small[seq(1,length(genes_HT29_small),10)]), this time plotting the posterior distributions by setting the variable plot_folder_name to the name of a subdirectory where the plots will be saved. 
 
-```{r,warnings=F,message=F,results='hide'}
+```{r,warnings=F,message=F,results='hide',eval=F}
 genes_HT29_small <- unique(HT29_lfc_small[,2])
 runBSure(lfc=HT29_lfc_small,save_file_name="HT29_lfc_small_sub",n_cores=1,min_tail_ESS=500,vector_of_genes=genes_HT29_small[seq(1,length(genes_HT29_small),10)],plot_folder_name="HT29_small_gene_distributions")
 ```
@@ -136,7 +136,7 @@ plot_credible_intervals(extracted_output,"results_HT29")
 
 
 
-The figures below compare for the screen analysed the following sets of genes: A) genes on a list of core essential (@Hart2017) and core fitness genes (@Behan2019). B) genes on a list of nonessential genes (@Hart2014), C) genes identified as essential of type I by the BSure method, D) genes identified as essential of type II by the BSure method. The following are characteristics of a screen of good power to distinguish between genes of different levels of essentiality. The main purpose of the scores below is across-screen comparison of screen quality and reliability. The suggested thresholds are therefore not hard cutoffs. In particular, if stricter FDR thresholds are used, then all of the four scores will be lower. Therefore, we recommend to using the default FDR of 0.05 here.
+The figures below compare for the screen analysed the following sets of genes: A) genes on a list of core essential (@Hart2017) and core fitness genes (@Behan2019). B) genes on a list of nonessential genes (@Hart2014), C) genes identified as essential of type I by the BSure method, D) genes identified as essential of type II by the BSure method. The following are characteristics of a screen of good power to distinguish between genes of different levels of essentiality. The main purpose of the scores below is across-screen comparison of screen quality and reliability. The suggested thresholds are therefore not hard cutoffs. In particular, if stricter FDR thresholds are used, then all of the four scores will be lower. Therefore, we recommend to using the default FDR of 0.05 for essentiality of type II and of 0.01 for essentiality of type I. 
 
 1. proportion_core_essential_in_essential_II, the proportion genes of essentiality type II among listed core essential and core fitness genes should be high, with a recommended minimum of 0.5.
 2. proportion_core_essential_in_essential_I, the proportion genes of essentiality type I among listed core essential and core fitness genes should be high, with a recommended minimum of 0.8.
@@ -146,24 +146,12 @@ The figures below compare for the screen analysed the following sets of genes: A
 
 ```{r,warnings=F,message=F,out.width = "80%"}
 data("HT29_full_extracted_output")
-extracted_gene_categories_HT29 <- extract_gene_categories(HT29_full_extracted_output)
+extracted_gene_categories_HT29 <- extract_gene_categories(HT29_full_extracted_output,figures = T)
 extracted_gene_categories_HT29$proportion_core_essential_in_essential_II
 extracted_gene_categories_HT29$proportion_core_essential_in_essential_I
 extracted_gene_categories_HT29$proportion_non_essential_genes_in_essential_II
 extracted_gene_categories_HT29$proportion_non_essential_genes_in_essential_I
 extracted_gene_categories_HT29$score
-```
-
-We repeat with a stricter FDR level. This leads to extremely confident sets of essential genes for both types, but high false negative rates, and therefore most core essential genes are not included in this list. We recommend this approach to determine differentially essential genes across cell lines, see Section 4 below, but not for general assessment of screen quality. 
-
-```{r,warnings=F,message=F,out.width = "80%"}
-data("HT29_full_extracted_output")
-extracted_gene_categories_HT29_strict <- extract_gene_categories(HT29_full_extracted_output,10^-3)
-extracted_gene_categories_HT29_strict$proportion_core_essential_in_essential_II
-extracted_gene_categories_HT29_strict$proportion_core_essential_in_essential_I
-extracted_gene_categories_HT29_strict$proportion_non_essential_genes_in_essential_II
-extracted_gene_categories_HT29_strict$proportion_non_essential_genes_in_essential_I
-extracted_gene_categories_HT29_strict$score
 ```
 
 # Comparisons of screens
@@ -188,7 +176,16 @@ extracted_gene_categories_K562_best$proportion_non_essential_genes_in_essential_
 extracted_gene_categories_K562_best$proportion_non_essential_genes_in_essential_I
 extracted_gene_categories_K562_best$score
 ```
+Now we check how well genes of different essentiality types are retained with the lower Cas9 levels 3' and 5' readout (but highest experiment coverage):
 
+```{r}
+extracted_gene_categories_K562_highest_3_5<- extract_gene_categories(resultsK562_highest_3_5_extracted_output)
+extracted_gene_categories_K562_highest_3_5$proportion_core_essential_in_essential_II
+extracted_gene_categories_K562_highest_3_5$proportion_core_essential_in_essential_I
+extracted_gene_categories_K562_highest_3_5$proportion_non_essential_genes_in_essential_II
+extracted_gene_categories_K562_highest_3_5$proportion_non_essential_genes_in_essential_I
+extracted_gene_categories_K562_highest_3_5$score
+```
 
 Now we check how well genes of different essentiality types are retained with the lower Cas9 levels and only 3' readout (but highest experiment coverage):
 
@@ -204,29 +201,26 @@ extracted_gene_categories_K562_highest$score
 We can directly compare the sets of essentiality types I and II found from the two screens:
 
 ```{r}
-comparison_Cas9_K562 <- compare_to_exisiting_screen(resultsK562_highCas9_extracted_output,resultsK562_highest_extracted_output)
+comparison_Cas9_K562 <- compare_to_gold_standard(resultsK562_highCas9_extracted_output,resultsK562_highest_extracted_output)
 comparison_Cas9_K562
 ```
 
-<em>proportion_genes_recovered </em>is the proportion of essential genes of types I and II from the gold standard set (FDR 0.1 for both types) that are also contained in the corresponding set for the new screen. The closer to one, the better the two screens agree in identifying genes at different essentiality types. 
+<em>proportion_genes_recovered_I/proportion_genes_recovered_II </em>is the proportion of essential genes of types I and II from the gold standard set that are also contained in the corresponding set for the new screen. The closer to one, the better the two screens agree in identifying genes at different essentiality types. A number close to 1 shows that the new screen has the same power as the gold standard to detect essential genes. <em> proportion_genes_recovered_I_FNR/proportion_genes_recovered_II_FNR</em> is the  proportion of essential genes of types I and II from the gold standard set that are also contained in the corresponding set for the new screen, if the new screen is controlled for FNR (false negative rate) instead of FDR. This number must be close to one, as otherwise this shows a misclassification problem that essential genes are likely significantly not essential in the new screen.
 
 
-Here, a majority of the genes are recovered.
+Here, the new screen is of less power, but the above misclassification problem is not substantial. 
 
 Now we check how well genes of different essentiality types are retained with the lower Cas9 levels if we use both the 3' and 5' readout:
 
 
 ```{r}
-comparison_Cas9_K562_B <- compare_to_exisiting_screen(resultsK562_highCas9_extracted_output,resultsK562_highest_3_5_extracted_output)
+comparison_Cas9_K562_B <- compare_to_gold_standard(resultsK562_highCas9_extracted_output,resultsK562_highest_3_5_extracted_output)
 comparison_Cas9_K562_B
 ```
-We see that the proportion of recovered genes has increased. 
 
-
-```
 This shows that by including both 3' and 5' readout, the genes set obtained are closer to the ones obtained by using the data with the higher Cas9 levels (and both 3' and 5' readout). 
 
-For screens of lower Cas9 levels, 3' readout, and different levels of experiment coverage compare the lengths of the credible intervals pairwise.
+For screens of lower Cas9 levels, 3' readout, and different levels of experiment coverage we compare the lengths of the credible intervals to find the optimal coverage level for the screen. Smaller credible intervals correspond to a screen with more power to separate essential and nonessential genes, therefore we want to find the level of coverage from which onward increases in coverage do not decrease the credible intervals. 
 
 ```{r,warnings=F,message=F,out.width = "70%"}
 comparison_highest_lowest <- compare_length_of_credible_intervals(resultsK562_highest_extracted_output,resultsK562_lowest_extracted_output, "160x-180x","25x-30x")
@@ -235,41 +229,7 @@ comparison_highest_high <- compare_length_of_credible_intervals(resultsK562_high
 
 The figures above suggest 120x-130x is the optimal coverage, as credible intervals are already comparable to those of the 160x-180x screen. 
 
-# Comparing across cell lines
 
-To compare essentiality types in different cell lines (here K562 from @Peets2019 and HT29 from @Allen2019) robustly, we
-compare sets of essential genes of levels I and II (with significance levels as detailed above) and sets of unessential genes of levels I and II (unessential with the same significance levels), and determine if there are overlaps between significantly essential genes in one cell line and significantly unessential genes in the other. 
-
-```{r,warnings=F,message=F}
-extracted_gene_categories_K562_best_strict <- extract_gene_categories(resultsK562_highCas9_extracted_output,0.001)
-extracted_gene_categories_K562_best_strict$proportion_core_essential_in_essential_II
-extracted_gene_categories_K562_best_strict$proportion_core_essential_in_essential_I
-extracted_gene_categories_K562_best_strict$proportion_non_essential_genes_in_essential_II
-extracted_gene_categories_K562_best_strict$proportion_non_essential_genes_in_essential_I
-extracted_gene_categories_K562_best_strict$score
-```
-
-```{r}
-intersect(extracted_gene_categories_K562_best_strict$not_essential_genes_II,extracted_gene_categories_HT29_strict$essential_genes_II)
-extracted_gene_categories_K562_best$false_positive_rate_not_essential_II
-extracted_gene_categories_HT29$false_positive_rate_essential_II
-```
-```{r}
-intersect(intersect(extracted_gene_categories_K562_best_strict$essential_genes_I,extracted_gene_categories_K562_best_strict$essential_genes_II),intersect(extracted_gene_categories_HT29_strict$not_essential_genes_I,extracted_gene_categories_HT29_strict$not_essential_genes_II))
-```
-
-```{r}
-intersect(extracted_gene_categories_K562_best_strict$essential_genes_I,extracted_gene_categories_HT29_strict$not_essential_genes_I)
-```
-```{r}
-intersect(extracted_gene_categories_K562_best_strict$not_essential_genes_II,extracted_gene_categories_HT29_strict$essential_genes_II)
-```
-```{r}
-intersect(extracted_gene_categories_K562_best_strict$essential_genes_II,extracted_gene_categories_HT29_strict$not_essential_genes_II)
-```
-
-
-Now we have obtained a list of genes confidently differentially essential in the two cell lines. 
 
 # Session information
 
