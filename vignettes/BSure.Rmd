@@ -135,27 +135,6 @@ plot_credible_intervals(extracted_output,"results_HT29")
 ```
 
 
-
-The figures below compare for the screen analysed the following sets of genes: A) genes on a list of core essential (@Hart2017) and core fitness genes (@Behan2019). B) genes on a list of nonessential genes (@Hart2014), C) genes identified as essential of type I by the BSure method, D) genes identified as essential of type II by the BSure method. The following are characteristics of a screen of good power to distinguish between genes of different levels of essentiality. The main purpose of the scores below is across-screen comparison of screen quality and reliability. The suggested thresholds are therefore not hard cutoffs. In particular, if stricter FDR thresholds are used, then all of the four scores will be lower. Therefore, we recommend to using the default FDR of 0.05 for essentiality of type II and of 0.01 for essentiality of type I. 
-
-1. proportion_core_essential_in_essential_II, the proportion genes of essentiality type II among listed core essential and core fitness genes should be high, with a recommended minimum of 0.5.
-2. proportion_core_essential_in_essential_I, the proportion genes of essentiality type I among listed core essential and core fitness genes should be high, with a recommended minimum of 0.8.
-3. proportion_non_essential_genes_in_essential_II, the proportion of genes of essentiality type II amoung listed nonessential genes should be low, with a recommended maximum of 0.05.
-4. proportion_non_essential_genes_in_essential_I, the proportion of genes of essentiality type I amoung listed nonessential genes should be low, with a recommended maximum of 0.1.
-5. score: the final score combines the four numbers above. 
-
-```{r,warnings=F,message=F,out.width = "80%"}
-data("HT29_full_extracted_output")
-extracted_gene_categories_HT29 <- extract_gene_categories(HT29_full_extracted_output,figures = T)
-extracted_gene_categories_HT29$proportion_core_essential_in_essential_II
-extracted_gene_categories_HT29$proportion_core_essential_in_essential_I
-extracted_gene_categories_HT29$proportion_non_essential_genes_in_essential_II
-extracted_gene_categories_HT29$proportion_non_essential_genes_in_essential_I
-extracted_gene_categories_HT29$score
-```
-
-
-
 # Session information
 
 ```{r}
