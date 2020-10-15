@@ -115,6 +115,8 @@ An example of a highly essential gene. It is essential of type II with probabili
 This gene is essential of type I because of the distinctness of its distribution from that of nonessential genes. Its evidence for being essential of type II is lower, as only part of its distribution is shifted less than 1/3 to the right compared to the distribution of core essential genes. 
 
 
+
+
 # BSure for genome-wide screens
 
 For genome-wide screens we recommend running BSure in parallel on 5-25 cores. The following example applies the method to the full genome-wide HT29 screen, from which the small dataset above was an extract. The code below runs BSure and plots credible intervals and diagnostic figures as illustrated above for the small example dataset. As running this function on a genome-wide screen is computationally more expensive and because of current problems concerning the parallel package if used with RStudio in connection with R-4, the following code cannot be run from RStudio with R-4.0.0-R-4.0.2.
