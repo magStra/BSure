@@ -194,6 +194,41 @@ library(RColorBrewer)
 
 }
 
+#' @title find_differential_genes
+#' Compares to screens and finds genes that are essential of type I or II in the first screen (controlling for FDR=0.001),
+#' but not in the second (controlling for FNR=0.05, to ensure low rate of false positives of differential essentiality)
+#' @params extracted_output_1 output of the function extract_from_output for the first screen
+#' @params extracted_output_2 output of the function extract_from_output for the second screen
+#' @return differential_genes_I genes that are essential of type I  in the first screen (controlling for FDR),
+#' but not in the second
+#' @return differential_genes_II genes that are essential of type II  in the first screen (controlling for FDR),
+#' but not in the second
+#' @export
+
+find_differential_genes <- function(extracted_output_1,extracted_output_2,FDR_I=0.001,
+                                    FDR_II=0.001,FNR_I=0.05,FNR_II=0.05)
+{
+  extracted_genes_1 <- extract_gene_categories(extracted_output_1,FDR_I=FDR_I,FDR_II=FDR_II,figures=F)
+  extracted_genes_2 <- extract_gene_categories_FNR(extracted_output_2,FNR_I=FNR_I,FNR_II=FNR_II,figures=F)
+  extracted_genes_3 <- extract_gene_categories(extracted_output_2,FDR_I=FDR_I,FDR_II=FDR_II,figures=F)
+  output <- c()
+  genes_1_I <- extracted_genes_1$essential_genes_I
+  genes_1_II <- extracted_genes_1$essential_genes_II
+  genes_2 <- extracted_genes_2$essential_genes_II
+  genes_3 <- extracted_genes_2$essential_genes_I
+  genes_2a <- extracted_genes_3$essential_genes_II
+  genes_3a <- extracted_genes_3$essential_genes_I
+  if (length(genes_2a) > length(genes_2))
+  {
+    genes_2 <- genes_2a
+  }
+  if (length(genes_3a) > length(genes_3))
+  {
+    genes_3 <- genes_3a
+  }
+  output$differential_genes <- setdiff(intersect(genes_1_II,genes_1_I),unique(c(genes_2,genes_3)))
+  return(output)
+}
 
 #' @title compare_to_gold_standard
 #' Compares a new screen to your gold-standard screen. For example, your gold-standard screen may be of high
