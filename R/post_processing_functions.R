@@ -241,7 +241,7 @@ find_differential_genes <- function(extracted_output_1,extracted_output_2,
 compare_to_gold_standard <- function(extracted_output_gold_standard,extracted_output_new)
 {
   extracted_genes_1 <- extract_gene_categories(extracted_output_gold_standard,figures=F,FDR_I=0.05,FDR_II=0.05)
-  extracted_genes_2 <- extract_gene_categories_FNR(extracted_output_new,figures=F,FNR_I=0.05,FNR_II=0.05)
+  extracted_genes_2 <- extract_gene_categories_FNR(extracted_output_new,FNR_I=0.05,FNR_II=0.05)
   extracted_genes_3 <- extract_gene_categories(extracted_output_new,figures=F,FDR_I=0.05,FDR_II=0.05)
   output <- c()
   genes_1_I <- extracted_genes_1$essential_genes_I
