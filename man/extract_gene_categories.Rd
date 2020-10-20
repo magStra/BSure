@@ -7,7 +7,7 @@
 extract_gene_categories(
   extracted_output,
   FDR_II = 0.05,
-  FDR_I = 0.01,
+  FDR_I = 0.05,
   figures = T
 )
 }
@@ -16,9 +16,7 @@ extract_gene_categories(
 
 \item{FDR_II}{set to 0.05 by default; false positive rate for essentiality of type II}
 
-\item{FDR_I}{false positive rate for essentiality of type I; set to 0.01 by default (lower compared to FDR_II
-to account for the fact that here a false positive is a truly nonessential gene, while this is not true
-in general for essentiality of level II.)}
+\item{FDR_I}{false positive rate for essentiality of type I; set to 0.05 by default}
 }
 \value{
 essential_genes_II  genes of essentiality level II (see above)

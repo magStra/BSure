@@ -60,9 +60,7 @@ extract_from_output <- function(BSure_output)
 #' @import eulerr
 #' @param extracted_output output of the function extract_from_output
 #' @param FDR_II set to 0.05 by default; false positive rate for essentiality of type II
-#' @param FDR_I false positive rate for essentiality of type I; set to 0.01 by default (lower compared to FDR_II
-#' to account for the fact that here a false positive is a truly nonessential gene, while this is not true
-#'in general for essentiality of level II.)
+#' @param FDR_I false positive rate for essentiality of type I; set to 0.05 by default
 #' @return essential_genes_II  genes of essentiality level II (see above)
 #' essential_genes_I genes of essentiality level I (see above).
 #' proportion_core_essential_in_essential_II which proportion of core essential genes is in the essential genes
@@ -81,7 +79,7 @@ extract_from_output <- function(BSure_output)
 #' Behan FM et al. Prioritization of cancer therapeutic targets using CRISPR–Cas9 screens.
 #' Nature. 2019;568(7753):511–516
 #' @export
-extract_gene_categories <- function(extracted_output,FDR_II=0.05,FDR_I= 0.01,figures=T)
+extract_gene_categories <- function(extracted_output,FDR_II=0.05,FDR_I= 0.05,figures=T)
 {
   data(auxData)
   coreEssGenes <- intersect(CEGv2,coreFitnessBehanEtAl)
@@ -141,7 +139,7 @@ extract_gene_categories <- function(extracted_output,FDR_II=0.05,FDR_I= 0.01,fig
 #' Behan FM et al. Prioritization of cancer therapeutic targets using CRISPR–Cas9 screens.
 #' Nature. 2019;568(7753):511–516
 #' @export
-extract_gene_categories_FNR <- function(extracted_output,FNR_II=0.05,FNR_I= 0.05,figures=T)
+extract_gene_categories_FNR <- function(extracted_output,FNR_II=0.1,FNR_I= 0.1)
 {
   data(auxData)
   coreEssGenes <- intersect(CEGv2,coreFitnessBehanEtAl)
@@ -197,36 +195,30 @@ library(RColorBrewer)
 #' @title find_differential_genes
 #' Compares to screens and finds genes that are essential of type I or II in the first screen (controlling for FDR=0.001),
 #' but not in the second (controlling for FNR=0.05, to ensure low rate of false positives of differential essentiality)
+#' This function may only be used if the second screen has sufficient power to detect essential genes compared to the first screen.
+#' If this balance of power is lacking, calling the function will results in an error.
 #' @params extracted_output_1 output of the function extract_from_output for the first screen
 #' @params extracted_output_2 output of the function extract_from_output for the second screen
-#' @return differential_genes_I genes that are essential of type I  in the first screen (controlling for FDR),
-#' but not in the second
-#' @return differential_genes_II genes that are essential of type II  in the first screen (controlling for FDR),
-#' but not in the second
+#' @return  genes that are essential of type II in the first screen (controlling for FDR),
+#' but not in the second (controlling for FNR)
 #' @export
 
-find_differential_genes <- function(extracted_output_1,extracted_output_2,FDR_I=0.001,
-                                    FDR_II=0.001,FNR_I=0.05,FNR_II=0.05)
+find_differential_genes <- function(extracted_output_1,extracted_output_2,
+                                    FDR_II=0.05,FNR_II=0.05)
 {
-  extracted_genes_1 <- extract_gene_categories(extracted_output_1,FDR_I=FDR_I,FDR_II=FDR_II,figures=F)
-  extracted_genes_2 <- extract_gene_categories_FNR(extracted_output_2,FNR_I=FNR_I,FNR_II=FNR_II,figures=F)
-  extracted_genes_3 <- extract_gene_categories(extracted_output_2,FDR_I=FDR_I,FDR_II=FDR_II,figures=F)
+  A <- compare_to_gold_standard(extracted_output_1,extracted_output_2)$proportion_genes_recovered_II_FNR
+  if (A < 0.75)
+  {
+    print("Less than 75% of genes essential of type II in screen one at the given FDR are essential of type II in screen 2 at the given FNR. This indicates a power imbalance across the screens to detect essential genes, and therefore this method to detect differential essentiality cannot be used.")
+    return(NULL)
+  }
+  extracted_genes_1 <- extract_gene_categories(extracted_output_1,FDR_II=FDR_II,figures=F)
+  extracted_genes_2 <- extract_gene_categories_FNR(extracted_output_2,FNR_II=FNR_II)
+  extracted_genes_3 <- extract_gene_categories(extracted_output_2,FDR_II=FDR_II,figures=F)
   output <- c()
-  genes_1_I <- extracted_genes_1$essential_genes_I
   genes_1_II <- extracted_genes_1$essential_genes_II
   genes_2 <- extracted_genes_2$essential_genes_II
-  genes_3 <- extracted_genes_2$essential_genes_I
-  genes_2a <- extracted_genes_3$essential_genes_II
-  genes_3a <- extracted_genes_3$essential_genes_I
-  if (length(genes_2a) > length(genes_2))
-  {
-    genes_2 <- genes_2a
-  }
-  if (length(genes_3a) > length(genes_3))
-  {
-    genes_3 <- genes_3a
-  }
-  output$differential_genes <- setdiff(intersect(genes_1_II,genes_1_I),unique(c(genes_2,genes_3)))
+  output <- setdiff(genes_1_II,genes_2)
   return(output)
 }
 
@@ -248,9 +240,9 @@ find_differential_genes <- function(extracted_output_1,extracted_output_2,FDR_I=
 
 compare_to_gold_standard <- function(extracted_output_gold_standard,extracted_output_new)
 {
-  extracted_genes_1 <- extract_gene_categories(extracted_output_gold_standard,figures=F)
-  extracted_genes_2 <- extract_gene_categories_FNR(extracted_output_new,figures=F)
-  extracted_genes_3 <- extract_gene_categories(extracted_output_new,figures=F)
+  extracted_genes_1 <- extract_gene_categories(extracted_output_gold_standard,figures=F,FDR_I=0.05,FDR_II=0.05)
+  extracted_genes_2 <- extract_gene_categories_FNR(extracted_output_new,figures=F,FNR_I=0.05,FNR_II=0.05)
+  extracted_genes_3 <- extract_gene_categories(extracted_output_new,figures=F,FDR_I=0.05,FDR_II=0.05)
   output <- c()
   genes_1_I <- extracted_genes_1$essential_genes_I
   genes_1_II <- extracted_genes_1$essential_genes_II
