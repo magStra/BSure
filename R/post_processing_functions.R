@@ -139,7 +139,7 @@ extract_gene_categories <- function(extracted_output,FDR_II=0.05,FDR_I= 0.05,fig
 #' Behan FM et al. Prioritization of cancer therapeutic targets using CRISPR–Cas9 screens.
 #' Nature. 2019;568(7753):511–516
 #' @export
-extract_gene_categories_FNR <- function(extracted_output,FNR_II=0.1,FNR_I= 0.1)
+extract_gene_categories_FNR <- function(extracted_output,FNR_II=0.05,FNR_I= 0.05)
 {
   data(auxData)
   coreEssGenes <- intersect(CEGv2,coreFitnessBehanEtAl)
