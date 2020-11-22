@@ -150,6 +150,18 @@ extracted_gene_categories_HT29$proportion_non_essential_genes_in_essential_II
 extracted_gene_categories_HT29$proportion_non_essential_genes_in_essential_I
 extracted_gene_categories_HT29$score
 ```
+
+Now for a cell lines of induced pluripotent stem cells (@Peets2019)
+
+```{r,warnings=F,message=F,out.width = "80%"}
+extracted_gene_categories_iPSC <- extract_gene_categories(iPSC_extracted_output)
+extracted_gene_categories_iPSC$proportion_core_essential_in_essential_II
+extracted_gene_categories_iPSC$proportion_core_essential_in_essential_I
+extracted_gene_categories_iPSC$proportion_non_essential_genes_in_essential_II
+extracted_gene_categories_iPSC$proportion_non_essential_genes_in_essential_I
+extracted_gene_categories_iPSC$score
+```
+
 # Comparisons of screens
 We load the processed output for screens on the K562 cell (@Peets2019) line with different Cas9 activity levels and different experiment coverage.
 
@@ -237,21 +249,25 @@ comparison_highest_lowest <- compare_length_of_credible_intervals(resultsK562_hi
 comparison_highest_high <- compare_length_of_credible_intervals(resultsK562_highest_extracted_output,resultsK562_high_extracted_output, "160x-180x","120x-130x")
 ```
 
+The figures above suggest 120x-130x is the optimal coverage, as credible intervals are already comparable to those of the 160x-180x screen.
+
 # Finding differentially essential genes
 
-The BSure package also includes a method to test very robustly for genes that are essential of type II in one cell line, but not in a different cell line. The robustness is achieved by using stringent FDR control for the first cell line and stringent FNR control for the second cell line. The method can only be used if the 
+The BSure package also includes a method to test very robustly for genes that are essential of type II in one cell line, but not in a different cell line. The robustness is achieved by using stringent FDR control for the first cell line and stringent FNR control for the second cell line. 
+
 
 ```{r}
-find_differential_genes(resultsK562_lowest_extracted_output,HT29_full_extracted_output)
+find_differential_genes(iPSC_extracted_output,resultsK562_highCas9_extracted_output)
 ```
 ```{r}
-find_differential_genes(HT29_full_extracted_output,resultsK562_highCas9_extracted_output)
+find_differential_genes(resultsK562_highCas9_extracted_output,iPSC_extracted_output)
 ```
+The method can, in principle, also be used to compare 
 
 ```{r}
 find_differential_genes(resultsK562_highCas9_extracted_output,HT29_full_extracted_output)
 ```
-The figures above suggest 120x-130x is the optimal coverage, as credible intervals are already comparable to those of the 160x-180x screen. 
+ 
 
 # Session information
 
