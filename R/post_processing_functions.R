@@ -173,15 +173,15 @@ library(RColorBrewer)
 #' @import rootSolve
 .findOptimalAlpha <- function(probs,FDR=0.05)
 {
-  if (.false_positive_rate(probs,max(probs)-10^-9) >= FDR)
-    return(max(probs)-10^-9) else{
-    return(uniroot(function(alpha) return(.false_positive_rate(probs,alpha)-FDR),c(min(probs)+10^-9,max(probs)-10^-9))$root)}}
+  if (.false_positive_rate(probs,max(probs)-0.0001) >= FDR)
+    return(max(probs)-0.0001) else{
+    return(uniroot(function(alpha) return(.false_positive_rate(probs,alpha)-FDR),c(min(probs)+0.0001,max(probs)-0.0001))$root)}}
 
 .findOptimalAlpha_FNR <- function(probs,FNR=0.05)
-{ if (.false_negative_rate(probs,min(probs)+10^-9) >= FNR)
-  return(min(probs)+10^-9)
-  else if (.false_negative_rate(probs,max(probs)-10^-9) <= FNR) {return(max(probs)-10^-9)}else{
-  return(min(1,uniroot(function(alpha) return(.false_negative_rate(probs,alpha)-FNR),c(min(probs)+10^-9,max(probs)-10^-9))$root))}
+{ if (.false_negative_rate(probs,min(probs)+0.0001) >= FNR)
+  return(min(probs)+0.0001)
+  else if (.false_negative_rate(probs,max(probs)-0.0001) <= FNR) {return(max(probs)-0.0001)}else{
+  return(min(1,uniroot(function(alpha) return(.false_negative_rate(probs,alpha)-FNR),c(min(probs)+0.0001,max(probs)-0.0001))$root))}
 }
 
 #' @import eulerr
@@ -202,10 +202,6 @@ library(RColorBrewer)
 #' @return  genes that are essential of type II in the first screen (controlling for FDR),
 #' but not in the second (controlling for FNR)
 #' @export
-###################
-
-
-##################
 
 
 find_differential_genes <- function(extracted_output_1,extracted_output_2,
@@ -238,9 +234,11 @@ find_differential_genes <- function(extracted_output_1,extracted_output_2,
 #' @return proportion_genes_recovered_II Proportion of the genes essential of type II in the first screen that are
 #' also essential of type I in the second screen.
 #' @return proportion_genes_recovered_I_FNR Proportion of the genes essential of type I in the first screen that are
-#' also essential of type I in the second screen, when FNR is controlled at 0.05 in the second screen.
+#' also essential of type I in the second screen, when FNR is controlled at 0.05 in the second screen. To avoid cases with
+#' very low FNR we use the union of the FNR and FDR controlled sets.
 #' @return proportion_genes_recovered_II_FNR Proportion of the genes essential of type II in the first screen that are
-#' also essential of type I in the second screen, when FNR is controlled at 0.05 in the second screen.
+#' also essential of type I in the second screen, when FNR is controlled at 0.05 in the second screen. Again we use
+#' the union of the FNR and FDR controlled sets.
 #' @export
 
 compare_to_gold_standard <- function(extracted_output_gold_standard,extracted_output_new)
@@ -249,12 +247,12 @@ compare_to_gold_standard <- function(extracted_output_gold_standard,extracted_ou
   extracted_genes_2 <- extract_gene_categories_FNR(extracted_output_new,FNR_I=0.05,FNR_II=0.05)
   extracted_genes_3 <- extract_gene_categories(extracted_output_new,figures=F,FDR_I=0.05,FDR_II=0.05)
   output <- c()
-  genes_1_I <- extracted_genes_1$essential_genes_I
-  genes_1_II <- extracted_genes_1$essential_genes_II
-  genes_2 <- extracted_genes_2$essential_genes_II
-  genes_3 <- extracted_genes_2$essential_genes_I
-  genes_2a <- extracted_genes_3$essential_genes_II
-  genes_3a <- extracted_genes_3$essential_genes_I
+  genes_1_I <- as.character(extracted_genes_1$essential_genes_I)
+  genes_1_II <- as.character(extracted_genes_1$essential_genes_II)
+  genes_2a <- as.character(extracted_genes_3$essential_genes_II)
+  genes_3a <- as.character(extracted_genes_3$essential_genes_I)
+  genes_2 <- unique(c(as.character(extracted_genes_2$essential_genes_II),genes_2a))
+  genes_3 <- unique(c(as.character(extracted_genes_2$essential_genes_I),genes_3a))
   output$proportion_genes_recovered_II_FNR <- length(intersect(genes_1_II,genes_2))/length(genes_1_II)
   output$proportion_genes_recovered_I_FNR <- length(intersect(genes_1_I,genes_3))/length(genes_1_I)
   output$proportion_genes_recovered_II <- length(intersect(genes_1_II,genes_2a))/length(genes_1_II)
