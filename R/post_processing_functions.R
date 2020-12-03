@@ -194,11 +194,13 @@ library(RColorBrewer)
 
 #' @title find_differential_genes
 #' Compares to screens and finds genes that are essential of type I or II in the first screen (controlling for FDR=0.001),
-#' but not in the second (controlling for FNR=0.05, to ensure low rate of false positives of differential essentiality)
+#' but not in the second (controlling for both FNR=FNR_II and FDR=FDR_II, to ensure low rate of false positives of differential essentiality)
 #' This function may only be used if the second screen has sufficient power to detect essential genes compared to the first screen.
 #' If this balance of power is lacking, calling the function will results in an error.
 #' @params extracted_output_1 output of the function extract_from_output for the first screen
 #' @params extracted_output_2 output of the function extract_from_output for the second screen
+#' @params FDR_II FDR threshold for both first and second screen
+#' @params FNR_II FNR threshold for second screen
 #' @return  genes that are essential of type II in the first screen (controlling for FDR),
 #' but not in the second (controlling for FNR)
 #' @export
@@ -217,8 +219,9 @@ find_differential_genes <- function(extracted_output_1,extracted_output_2,
   extracted_genes_2 <- extract_gene_categories_FNR(extracted_output_2,FNR_II=FNR_II)
   extracted_genes_3 <- extract_gene_categories(extracted_output_2,FDR_II=FDR_II,figures=F)
   output <- c()
-  genes_1_II <- extracted_genes_1$essential_genes_II
-  genes_2 <- extracted_genes_2$essential_genes_II
+  genes_1_II <- as.character(extracted_genes_1$essential_genes_II)
+  genes_2 <- unique(c(as.character(extracted_genes_2$essential_genes_II),
+                      as.character(extracted_genes_3$essential_genes_II)))
   output <- setdiff(genes_1_II,genes_2)
   return(output)
 }
