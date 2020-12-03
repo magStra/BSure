@@ -14,3 +14,4 @@ model {
   target += log_mix(0.1,multi_normal_lpdf(muSigma|meanEssential,SigmaEssential),
   multi_normal_lpdf(muSigma|meanNE,SigmaNE));
   y ~ normal(muSigma[1],muSigma[2]);}
+

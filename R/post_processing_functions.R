@@ -173,15 +173,15 @@ library(RColorBrewer)
 #' @import rootSolve
 .findOptimalAlpha <- function(probs,FDR=0.05)
 {
-  if (.false_positive_rate(probs,max(probs)-0.0001) >= FDR)
-    return(max(probs)-0.0001) else{
-    return(uniroot(function(alpha) return(.false_positive_rate(probs,alpha)-FDR),c(min(probs)+0.0001,max(probs)-0.0001))$root)}}
+  if (.false_positive_rate(probs,max(probs)-10^-9) >= FDR)
+    return(max(probs)-10^-9) else{
+    return(uniroot(function(alpha) return(.false_positive_rate(probs,alpha)-FDR),c(min(probs)+10^-9,max(probs)-10^-9))$root)}}
 
 .findOptimalAlpha_FNR <- function(probs,FNR=0.05)
-{ if (.false_negative_rate(probs,min(probs)+0.0001) >= FNR)
-  return(min(probs)+0.0001)
-  else if (.false_negative_rate(probs,max(probs)-0.0001) <= FNR) {return(max(probs)-0.0001)}else{
-  return(min(1,uniroot(function(alpha) return(.false_negative_rate(probs,alpha)-FNR),c(min(probs)+0.0001,max(probs)-0.0001))$root))}
+{ if (.false_negative_rate(probs,min(probs)+10^-9) >= FNR)
+  return(min(probs)+10^-9)
+  else if (.false_negative_rate(probs,max(probs)-10^-9) <= FNR) {return(max(probs)-10^-9)}else{
+  return(min(1,uniroot(function(alpha) return(.false_negative_rate(probs,alpha)-FNR),c(min(probs)+10^-9,max(probs)-10^-9))$root))}
 }
 
 #' @import eulerr
@@ -202,9 +202,14 @@ library(RColorBrewer)
 #' @return  genes that are essential of type II in the first screen (controlling for FDR),
 #' but not in the second (controlling for FNR)
 #' @export
+###################
+
+
+##################
+
 
 find_differential_genes <- function(extracted_output_1,extracted_output_2,
-                                    FDR_II=0.05,FNR_II=0.05)
+                                    FDR_II=0.05,FNR_II=0.1,FNR_I=0.05)
 {
   A <- compare_to_gold_standard(extracted_output_1,extracted_output_2)$proportion_genes_recovered_II_FNR
   if (A < 0.75)
