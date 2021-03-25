@@ -308,13 +308,17 @@ runBSure <- function(lfc,save_file_name,n_cores=1,min_tail_ESS=500,vector_of_gen
   distNE <- c()
   for (j in 1:length(intersect(geneNames,nonEssGenes)))
   {
-    distNE <- cbind(distNE,outputNE[,j]$posterior)
+    distNE <- cbind(distNE,sort(outputNE[,j]$posterior))
   }
   distEss <- c()
   for (j in 1:length(intersect(geneNames,coreEssGenes)))
   {
-    distEss <- cbind(distEss,outputEss[,j]$posterior)
+    distEss <- cbind(distEss,sort(outputEss[,j]$posterior))
   }
+  bound_NE <- quantile(as.vector(distNE),0.05)
+  bound_Ess <- quantile(as.vector(distEss),0.95)
+  print(bound_NE)
+  print(bound_Ess)
   save(distNE,distEss,file=paste(save_file_name,"distEssNE.rda",sep=""))
   plot_posterior <- F
   if (!(is.null(plot_folder_name)))
@@ -333,16 +337,8 @@ runBSure <- function(lfc,save_file_name,n_cores=1,min_tail_ESS=500,vector_of_gen
       save_file_name <- paste0(plot_folder_name,"/",geneName)
       output <- core_function_1gene(lfc=lfc_gene, geneName, prior=priorDists,keep_samples=T,
                                   plot_posterior=plot_posterior,file_name= paste0(save_file_name,".pdf"),min_tail_ESS=min_tail_ESS)
-      lNE <- min(length(distNE),length(output$posterior[,1]))
-      xx <- sample(1:length(distNE),lNE,F)
-      distNE1 <- distNE[xx]
-      lE <- min(length(distEss),length(output$posterior[,1]))
-      xy1 <- sample(1:length(distEss),lE,F)
-      distEss <- distEss[xy1]
-      samplesOutputEss <- sample(output$posterior[,1],lE,replace=F)
-      samplesOutputNE <- sample(output$posterior[,1],lNE,replace=F)
-      output$probability_essential_II <- sum(sort(samplesOutputEss) < sort(distEss) + 1/3)/length(distEss)
-      output$probability_essential_I <- sum(samplesOutputNE < distNE1)/length(distNE1)
+      output$probability_essential_II <- sum(output$posterior[,1] < bound_Ess)/length(output$posterior[,1])
+      output$probability_essential_I <- sum(output$posterior[,1] < bound_NE)/length(output$posterior[,1])
       if (!(is.null(plot_folder_name)))
       {
         pdf(paste0(save_file_name,".pdf"),height=8.8/2.54,width = 13/2.54)
