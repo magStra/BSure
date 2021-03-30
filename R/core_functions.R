@@ -310,15 +310,31 @@ runBSure <- function(lfc,save_file_name,n_cores=1,min_tail_ESS=500,vector_of_gen
   {
     distNE <- cbind(distNE,sort(outputNE[,j]$posterior))
   }
+  distNE_quantiles <- apply(distNE,2,function(x) return(quantile(x,c(0.1,0.9))))
+  NE_upper <- max(distNE_quantiles[2,])
+  NE_lower <- min(distNE_quantiles[1,])
+  xx <- apply(distNE, 2,function(x) return(all(x < NE_upper)))
+  yy <- apply(distNE, 2,function(x) return(any(x < NE_lower)))
+  xx[yy] <- F
+  xx[distNE_quantiles[,1] < NE_lower] <- F
+  distNE <- distNE[,xx]
   distEss <- c()
   for (j in 1:length(intersect(geneNames,coreEssGenes)))
   {
     distEss <- cbind(distEss,sort(outputEss[,j]$posterior))
   }
-  bound_NE <- quantile(as.vector(distNE),0.05)
-  bound_Ess <- quantile(as.vector(distEss),0.95)
-  print(bound_NE)
-  print(bound_Ess)
+  distEss_quantiles <- apply(distEss,2,function(x) return(quantile(x,c(0.1,0.9))))
+  Ess_upper <- max(distEss_quantiles[2,])
+  Ess_lower <- min(distEss_quantiles[1,])
+  xx <- apply(distEss, 2,function(x) return(all(x < Ess_upper)))
+  yy <- apply(distEss, 2,function(x) return(any(x < Ess_lower)))
+  xx[yy] <- F
+  xx[distEss_quantiles[,1] < Ess_lower] <- F
+  distEss <- distEss[,xx]
+  bound_NE <- min(distNE)
+  bound_Ess <- max(distEss)
+  median_NE <- median(distNE)
+  median_Ess <- median(distEss)
   save(distNE,distEss,file=paste(save_file_name,"distEssNE.rda",sep=""))
   plot_posterior <- F
   if (!(is.null(plot_folder_name)))
@@ -338,7 +354,9 @@ runBSure <- function(lfc,save_file_name,n_cores=1,min_tail_ESS=500,vector_of_gen
       output <- core_function_1gene(lfc=lfc_gene, geneName, prior=priorDists,keep_samples=T,
                                   plot_posterior=plot_posterior,file_name= paste0(save_file_name,".pdf"),min_tail_ESS=min_tail_ESS)
       output$probability_essential_II <- sum(output$posterior[,1] < bound_Ess)/length(output$posterior[,1])
+      output$probability_NE_05 <- sum(output$posterior[,1] > median_Ess)/length(output$posterior[,1])
       output$probability_essential_I <- sum(output$posterior[,1] < bound_NE)/length(output$posterior[,1])
+      output$probability_essential_05 <- sum(output$posterior[,1] < median_NE)/length(output$posterior[,1])
       if (!(is.null(plot_folder_name)))
       {
         pdf(paste0(save_file_name,".pdf"),height=8.8/2.54,width = 13/2.54)
@@ -348,8 +366,9 @@ runBSure <- function(lfc,save_file_name,n_cores=1,min_tail_ESS=500,vector_of_gen
         df <- data.frame(y=y,ind=ind)
         pp <- ggplot(df,aes(x=y)) + geom_density(aes(color=ind))+theme_classic(base_size=15)+ scale_y_continuous(expand = c(0, 0))+
           theme(legend.title=element_blank())+theme(legend.position="top")+theme(plot.title = element_text(size=13))+
-          ggtitle(paste0("essential I: ",toString(round(output$probability_essential_I,2)),", essential II: ",
-                         toString(round(output$probability_essential_II,2))))
+          ggtitle(paste0("essential 0.5: ",toString(round(output$probability_essential_05,2)),", essential I: ",toString(round(output$probability_essential_I,2)),
+                         "\n nonessential 0.5: ",toString(round(output$probability_NE_05,2)),
+                         ", essential II: ",toString(round(output$probability_essential_II,2))))
         print(pp)
         dev.off()
       }
