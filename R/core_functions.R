@@ -310,9 +310,10 @@ runBSure <- function(lfc,save_file_name,n_cores=1,min_tail_ESS=500,vector_of_gen
   {
     distNE <- cbind(distNE,sort(outputNE[,j]$posterior))
   }
-  distNE_quantiles <- apply(distNE,2,function(x) return(quantile(x,c(0.1,0.9))))
-  NE_upper <- max(distNE_quantiles[2,])
-  NE_lower <- min(distNE_quantiles[1,])
+  distNE_min <- apply(distNE,2,min)
+  distNE_max <- apply(distNE,2,max)
+  NE_upper <- quantile(distNE_max,0.9)
+  NE_lower <- quantile(distNE_min,0.1)
   xx <- apply(distNE, 2,function(x) return(all(x < NE_upper)))
   yy <- apply(distNE, 2,function(x) return(any(x < NE_lower)))
   xx[yy] <- F
@@ -323,9 +324,10 @@ runBSure <- function(lfc,save_file_name,n_cores=1,min_tail_ESS=500,vector_of_gen
   {
     distEss <- cbind(distEss,sort(outputEss[,j]$posterior))
   }
-  distEss_quantiles <- apply(distEss,2,function(x) return(quantile(x,c(0.1,0.9))))
-  Ess_upper <- max(distEss_quantiles[2,])
-  Ess_lower <- min(distEss_quantiles[1,])
+  distEss_min <- apply(distEss,2,min)
+  distEss_max <- apply(distEss,2,max)
+  Ess_upper <- quantile(distEss_max,0.9)
+  Ess_lower <- quantile(distEss_min,0.1)
   xx <- apply(distEss, 2,function(x) return(all(x < Ess_upper)))
   yy <- apply(distEss, 2,function(x) return(any(x < Ess_lower)))
   xx[yy] <- F
