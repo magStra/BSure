@@ -32,8 +32,8 @@ extract_from_output <- function(BSure_output)
   for (j in 1:ncl)
   {
     Rhat[j] <- BSure_output[,j]$rhat[1]
-    nExpensiveSampling = nExpensiveSampling+BSure_output[,j]$expensiveSampling
-    nVeryExpensiveSampling = nVeryExpensiveSampling+BSure_output[,j]$veryExpensiveSampling
+    nExpensiveSampling = nExpensiveSampling+as.numeric(BSure_output[,j]$expensiveSampling)
+    nVeryExpensiveSampling = nVeryExpensiveSampling+as.numeric(BSure_output[,j]$veryExpensiveSampling)
     CI_lower_bounds[j] <- BSure_output[,j]$quant025[1]
     CI_upper_bounds[j] <- BSure_output[,j]$quant975[1]
     tail_ESS[j] <- BSure_output[,j]$ess_tail[1]
