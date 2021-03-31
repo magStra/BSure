@@ -22,6 +22,8 @@ extract_from_output <- function(BSure_output)
   CI_upper_bounds <- rep(0,ncl)
   prob_essential_I <- rep(0,ncl)
   prob_essential_II <- rep(0,ncl)
+  prob_NE_05 <- rep(0,ncl)
+  prob_essential_05 <- rep(0,ncl)
   tail_ESS <- rep(0,ncl)
   means <- rep(0,ncl)
   gene_names <- c()
@@ -38,6 +40,8 @@ extract_from_output <- function(BSure_output)
     means[j] <- BSure_output[,j]$mean[1]
     prob_essential_II[j] <- BSure_output[,j]$probability_essential_II
     prob_essential_I[j] <- BSure_output[,j]$probability_essential_I
+    prob_NE_05 <- BSure_output[,j]$probability_NE_05
+    prob_essential_05 <-  BSure_output[,j]$probability_essential_05
     gene_names <- c(gene_names,BSure_output[,j]$gene_names)
   }
   prop_expensive_sampling <- nExpensiveSampling/ncl
