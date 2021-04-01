@@ -317,7 +317,6 @@ runBSure <- function(lfc,save_file_name,n_cores=1,min_tail_ESS=500,vector_of_gen
   xx <- apply(distNE, 2,function(x) return(all(x < NE_upper)))
   yy <- apply(distNE, 2,function(x) return(any(x < NE_lower)))
   xx[yy] <- F
-  xx[distNE_quantiles[,1] < NE_lower] <- F
   distNE <- distNE[,xx]
   distEss <- c()
   for (j in 1:length(intersect(geneNames,coreEssGenes)))
@@ -331,7 +330,6 @@ runBSure <- function(lfc,save_file_name,n_cores=1,min_tail_ESS=500,vector_of_gen
   xx <- apply(distEss, 2,function(x) return(all(x < Ess_upper)))
   yy <- apply(distEss, 2,function(x) return(any(x < Ess_lower)))
   xx[yy] <- F
-  xx[distEss_quantiles[,1] < Ess_lower] <- F
   distEss <- distEss[,xx]
   bound_NE <- min(distNE)
   bound_Ess <- max(distEss)
