@@ -147,7 +147,7 @@ core_function_1gene <- function(lfc_gene, gene_name,prior,keep_samples=F,plot_po
   meanEssential <- prior$essential$par[5:6]
   meanNE <- prior$NE$par[5:6]
   samples <- sampling(stanmodels$BSure,data = list(M = length(as.vector(lfc_gene)), y=as.vector(lfc_gene),
-                                           meanEssential=meanEssential,meanNE=meanNE,SigmaNE=SigmaNE,SigmaEssential=SigmaEssential),chains=2, cores=1,
+                       meanEssential=meanEssential,meanNE=meanNE,SigmaNE=SigmaNE,SigmaEssential=SigmaEssential),chains=2, cores=1,
                       iter=8000,thin=2,control = list(adapt_delta=0.9),refresh=8000)
   A <- as.matrix(samples)
   essTail <- apply(A,2,ess_tail)

@@ -48,8 +48,7 @@ extract_from_output <- function(BSure_output)
   prop_very_expensive_sampling <- nVeryExpensiveSampling/ncl
   sample_summary <- data.frame(means=means,CI_lower_bounds=CI_lower_bounds,CI_upper_bounds=CI_upper_bounds,
                               Rhat=Rhat,tail_ESS=tail_ESS,prob_essential_II=prob_essential_II,
-                              prob_essential_I=prob_essential_I,
-                              prob_NE_05=prob_NE_05,prob_essential_05=prob_essential_05,gene_names=gene_names)
+                              prob_essential_I=prob_essential_I,gene_names=gene_names)
   res$prop_expensive_sampling <- prop_expensive_sampling
   res$prop_very_expensive_sampling <- prop_very_expensive_sampling
   res$sample_summary <- sample_summary
