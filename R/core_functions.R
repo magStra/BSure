@@ -354,7 +354,6 @@ runBSure <- function(lfc,save_file_name,n_cores=1,min_tail_ESS=500,vector_of_gen
       output <- core_function_1gene(lfc=lfc_gene, geneName, prior=priorDists,keep_samples=T,
                                   plot_posterior=plot_posterior,file_name= paste0(save_file_name,".pdf"),min_tail_ESS=min_tail_ESS)
       output$probability_essential_II <- sum(output$posterior[,1] < bound_Ess)/length(output$posterior[,1])
-      output$probability_NE_05 <- sum(output$posterior[,1] > median_Ess)/length(output$posterior[,1])
       output$probability_essential_I <- sum(output$posterior[,1] < bound_NE)/length(output$posterior[,1])
       output$probability_essential_05 <- sum(output$posterior[,1] < median_NE)/length(output$posterior[,1])
       if (!(is.null(plot_folder_name)))

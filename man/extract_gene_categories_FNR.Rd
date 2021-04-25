@@ -4,7 +4,7 @@
 \alias{extract_gene_categories_FNR}
 \title{extract_gene_categories_FNR}
 \usage{
-extract_gene_categories_FNR(extracted_output, FNR_II = 0.1, FNR_I = 0.1)
+extract_gene_categories_FNR(extracted_output, FNR_II = 0.05, FNR_I = 0.05)
 }
 \arguments{
 \item{extracted_output}{output of the function extract_from_output}

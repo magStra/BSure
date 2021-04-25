@@ -17,10 +17,12 @@ proportion_genes_recovered_II Proportion of the genes essential of type II in th
 also essential of type I in the second screen.
 
 proportion_genes_recovered_I_FNR Proportion of the genes essential of type I in the first screen that are
-also essential of type I in the second screen, when FNR is controlled at 0.05 in the second screen.
+also essential of type I in the second screen, when FNR is controlled at 0.05 in the second screen. To avoid cases with
+very low FNR we use the union of the FNR and FDR controlled sets.
 
 proportion_genes_recovered_II_FNR Proportion of the genes essential of type II in the first screen that are
-also essential of type I in the second screen, when FNR is controlled at 0.05 in the second screen.
+also essential of type I in the second screen, when FNR is controlled at 0.05 in the second screen. Again we use
+the union of the FNR and FDR controlled sets.
 }
 \description{
 compare_to_gold_standard

@@ -4,7 +4,7 @@
 \alias{find_differential_genes}
 \title{find_differential_genes
 Compares to screens and finds genes that are essential of type I or II in the first screen (controlling for FDR=0.001),
-but not in the second (controlling for FNR=0.05, to ensure low rate of false positives of differential essentiality)
+but not in the second (controlling for both FNR=FNR_II and FDR=FDR_II, to ensure low rate of false positives of differential essentiality)
 This function may only be used if the second screen has sufficient power to detect essential genes compared to the first screen.
 If this balance of power is lacking, calling the function will results in an error.}
 \usage{
@@ -12,7 +12,8 @@ find_differential_genes(
   extracted_output_1,
   extracted_output_2,
   FDR_II = 0.05,
-  FNR_II = 0.05
+  FNR_II = 0.1,
+  FNR_I = 0.05
 )
 }
 \value{
@@ -22,7 +23,7 @@ but not in the second (controlling for FNR)
 \description{
 find_differential_genes
 Compares to screens and finds genes that are essential of type I or II in the first screen (controlling for FDR=0.001),
-but not in the second (controlling for FNR=0.05, to ensure low rate of false positives of differential essentiality)
+but not in the second (controlling for both FNR=FNR_II and FDR=FDR_II, to ensure low rate of false positives of differential essentiality)
 This function may only be used if the second screen has sufficient power to detect essential genes compared to the first screen.
 If this balance of power is lacking, calling the function will results in an error.
 }
